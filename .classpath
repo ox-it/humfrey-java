@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.6.0 (MacOS X Default)">
+		<attributes>
+			<attribute name="owner.project.facets" value="jst.java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v6.0">
+		<attributes>
+			<attribute name="owner.project.facets" value="jst.web"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="var" path="M2_REPO/repository/com/hp/hpl/jena/jena/2.6.2/jena-2.6.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/repository/com/hp/hpl/jena/sdb/1.3.1/sdb-1.3.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/repository/com/hp/hpl/jena/arq/2.8.1/arq-2.8.1.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>
