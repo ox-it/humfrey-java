@@ -12,8 +12,8 @@
   
   <context-param>
     <description>Filename of the store description</description>
-      <param-name>storeDescription</param-name>
-      <param-value>true</param-value>
+    <param-name>storeDescription</param-name>
+    <param-value>sdb.ttl</param-value>
   </context-param> 
   
   <servlet>
@@ -21,9 +21,32 @@
   	<servlet-class>uk.ac.ox.oucs.humfrey.IdServlet</servlet-class>
   	<load-on-startup>5</load-on-startup>
   </servlet>
-  
+
+  <servlet>
+  	<servlet-name>graph</servlet-name>
+  	<servlet-class>uk.ac.ox.oucs.humfrey.GraphServlet</servlet-class>
+  	<load-on-startup>5</load-on-startup>
+  </servlet>
+ 
+  <servlet>
+  	<servlet-name>doc</servlet-name>
+  	<servlet-class>uk.ac.ox.oucs.humfrey.DocServlet</servlet-class>
+  	<load-on-startup>5</load-on-startup>
+  </servlet>
+ 
   <servlet-mapping>
     <servlet-name>id</servlet-name>
     <url-pattern>/id/*</url-pattern>
   </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>graph</servlet-name>
+    <url-pattern>/graph/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>doc</servlet-name>
+    <url-pattern>/doc/*</url-pattern>
+  </servlet-mapping>
+
 </web-app>
