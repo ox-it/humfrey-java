@@ -4,7 +4,7 @@ public class TurtleSerializer extends JenaSerializer {
 	protected String getSerialization() {
 		return "TURTLE";
 	}
-	protected String getContentType() {
+	public String getContentType() {
 		return "text/turtle";
 	}
 }

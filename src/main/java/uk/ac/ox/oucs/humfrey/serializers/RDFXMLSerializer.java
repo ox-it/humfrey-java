@@ -4,7 +4,7 @@ public class RDFXMLSerializer extends JenaSerializer {
 	protected String getSerialization() {
 		return "RDF/XML-ABBREV";
 	}
-	protected String getContentType() {
+	public String getContentType() {
 		return "application/rdf+xml";
 	}
 }

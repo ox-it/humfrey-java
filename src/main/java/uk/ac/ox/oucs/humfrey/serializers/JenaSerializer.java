@@ -12,8 +12,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 
 abstract public class JenaSerializer extends Serializer {
 	protected abstract String getSerialization();
-	protected abstract String getContentType();
-
+	
 	@Override
 	public void serializeModel(Model model, Query query, HttpServletRequest req,
 			HttpServletResponse resp) throws IOException {

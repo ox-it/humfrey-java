@@ -10,5 +10,6 @@ import uk.ac.ox.oucs.humfrey.Query;
 import com.hp.hpl.jena.rdf.model.Model;
 
 public abstract class Serializer {
+	public abstract String getContentType();
 	abstract public void serializeModel(Model model, Query query, HttpServletRequest req, HttpServletResponse resp) throws IOException;
 }

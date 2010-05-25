@@ -4,7 +4,7 @@ public class Notation3Serializer extends JenaSerializer {
 	protected String getSerialization() {
 		return "N3";
 	}
-	protected String getContentType() {
+	public String getContentType() {
 		return "text/n3";
 	}
 }
