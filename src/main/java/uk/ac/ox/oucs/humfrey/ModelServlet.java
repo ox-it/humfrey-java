@@ -5,15 +5,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
 import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
@@ -55,7 +57,6 @@ public class ModelServlet extends HttpServlet {
 	}
 	
 	protected Query getQuery(HttpServletRequest req, HttpServletResponse resp) {
-		Query query;
 		try {
 			return new Query(req);
 		} catch (InvalidFormatException e) {
@@ -95,6 +96,31 @@ public class ModelServlet extends HttpServlet {
 		serializers.put("nt", new NTripleSerializer());
 		serializers.put("ttl", new TurtleSerializer());
 		return serializers;
+	}
+	
+	protected Map<String,String> getPrefixMapping() {
+		Graph graph = namedGraphSet.asJenaGraph(Node.createURI(""));
+		Map<String,String> prefixMap = new HashMap<String,String>();
+		ExtendedIterator<Triple> triples = graph.find(
+				null,
+				Namespaces.rdf._("type"),
+				Namespaces.owl._("Ontology"));
+		while (triples.hasNext()) {
+			Node ontology = triples.next().getSubject();
+			
+			ExtendedIterator<Triple> uris = graph.find(
+					ontology, Namespaces.vann._("preferredNamespaceUri"), null);
+			ExtendedIterator<Triple> prefixes = graph.find(
+					ontology, Namespaces.vann._("preferredNamespacePrefix"), null);
+			
+			if (!uris.hasNext() || !prefixes.hasNext())
+				continue;
+			
+			prefixMap.put(uris.next().getObject().toString(),
+						 prefixes.next().getObject().toString());
+		}
+		prefixMap.putAll(Namespaces.getPrefixMapping());
+		return prefixMap;
 	}
 
 }

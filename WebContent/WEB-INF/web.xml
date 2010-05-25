@@ -45,6 +45,11 @@
   </servlet-mapping>
 
   <servlet-mapping>
+    <servlet-name>graph</servlet-name>
+    <url-pattern>/ontology/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
     <servlet-name>doc</servlet-name>
     <url-pattern>/doc/*</url-pattern>
   </servlet-mapping>

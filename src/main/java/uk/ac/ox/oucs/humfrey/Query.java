@@ -26,7 +26,9 @@ public class Query {
 		if (path.startsWith("/id/")) {
 			uri = Node.createURI(url.toString());
 			setFormat(negotiateContent(req.getHeader("Accept")));
-		} else if (path.startsWith("/graph/") ||path.startsWith("/doc/")) {
+		} else if (path.startsWith("/graph/")
+				|| path.startsWith("/ontology/")
+				|| path.startsWith("/doc/")) {
 			if (path.startsWith("/doc/"))
 				path = "/id/" + path.substring(5);
 			for (String format : formats) {
@@ -41,6 +43,12 @@ public class Query {
 			uri = Node.createURI(url.toString());
 		}
 		
+	}
+	
+	public URL getDocRoot() {
+		if (!url.getPath().startsWith("/id/"))
+			throw new AssertionError();
+		return buildURL(url.getProtocol(), url.getHost(), url.getPort(), "/doc/"+url.getPath().substring(4));
 	}
 	
 	static public URL buildURL(String protocol, String host, int port, String path) {
