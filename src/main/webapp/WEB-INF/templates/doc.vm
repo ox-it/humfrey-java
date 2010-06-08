@@ -1,0 +1,24 @@
+#define( $title )$resource.label#end
+#define( $content )
+
+<dl>
+#foreach( $entry in $resource.propertyMap.entrySet() )
+  <dt>$entry.key</dt>
+#foreach( $object in $entry.value )
+  <dd>$object</dd>
+#end
+#end
+</dl>
+
+<footer>
+  <p>
+    Other formats: 
+    <ul>
+#foreach( $entry in $serializers.entrySet() )#if( $entry.key != "html")
+      <li><a href="${query.docRoot}.${entry.key}">$entry.value.name</a></li>
+#end#end
+    </ul>
+  </p>
+</footer>
+#end
+#parse( "base.vm" )

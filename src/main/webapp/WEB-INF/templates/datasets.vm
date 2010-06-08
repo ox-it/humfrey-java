@@ -1,0 +1,33 @@
+#define( $title )Datasets#end
+#define( $content )
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Publisher</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+#foreach( $dataset in $datasets )
+    <tr>
+      <td>$dataset.label</td>
+      <td>$dataset.dct_publisher</td>
+      <td>$dataset.dct_description</td>
+      <td>
+      <dl>
+#foreach( $entry in $dataset.propertyMap.entrySet() )
+  <dt>$entry.key</dt>
+#foreach( $object in $entry.value )
+  <dd>$object</dd>
+#end
+#end
+</dl>
+      </td>
+    </tr>
+#end
+  </tbody>
+</table>
+#end
+#parse( "base.vm" )

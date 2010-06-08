@@ -1,0 +1,9 @@
+#define( $title )data.ox.ac.uk#end
+#define( $content )
+
+<p>Triples: $size</p>
+
+<a href="/datasets/">Datasets</a>
+
+#end
+#parse( "base.vm" )
