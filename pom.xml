@@ -51,14 +51,41 @@
     </dependency>
 
 
+    <dependency>
+    	<groupId>org.apache.velocity</groupId>
+    	<artifactId>velocity</artifactId>
+    	<version>1.6.4</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.apache.velocity</groupId>
+    	<artifactId>velocity-tools</artifactId>
+    	<version>2.0</version>
+    </dependency>
+    <dependency>
+    	<groupId>postgresql</groupId>
+    	<artifactId>postgresql</artifactId>
+    	<version>8.4-701.jdbc4</version>
+    </dependency>
   </dependencies>
 
   <build>
-  <plugins>
-    <plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-compiler-plugin</artifactId>
-      <configuration>
+<!--
+    <resources>
+      <resource>
+        <targetPath>WEB-INF/templates</targetPath>
+        <directory>src/main/resources/templates</directory>
+        <includes>
+          <include>**/*.vm</include>
+        </includes>
+      </resource>
+    </resources>
+-->
+     
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
           <source>1.6</source>
           <target>1.6</target>
           <compilerVersion>1.5</compilerVersion>
@@ -66,6 +93,6 @@
           <showWarnings>true</showWarnings>
         </configuration>
       </plugin>
-  </plugins>
+    </plugins>
   </build>
 </project>
