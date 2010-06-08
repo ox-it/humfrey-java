@@ -10,11 +10,11 @@ import uk.ac.ox.oucs.humfrey.Query;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-abstract public class JenaSerializer extends Serializer {
+abstract class JenaSerializer extends AbstractSerializer {
 	protected abstract String getSerialization();
 	
 	@Override
-	public void serializeModel(Model model, Query query, HttpServletRequest req,
+	public void serializeModel(Model model, Model fullModel, Query query, HttpServletRequest req,
 			HttpServletResponse resp) throws IOException {
 		resp.setContentType(getContentType());
 		Writer writer = resp.getWriter();
