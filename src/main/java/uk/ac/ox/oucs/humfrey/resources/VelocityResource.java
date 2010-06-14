@@ -19,9 +19,11 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 public class VelocityResource implements Comparable<VelocityResource> {
-	protected static final String labelProperties[] = {"rdfs_label", "skos_prefLabel", "dc_title"};
+	protected static final String labelProperties[] = {"rdfs_label", "skos_prefLabel", "dc_title", "rdf_value"};
+	protected static final Map<String,Class<? extends VelocityResource>> classMap = getClassMap();
 	protected static EscapeTool escapeTool = new EscapeTool(); 
 	Resource resource;
 	Model fullModel;
@@ -32,12 +34,20 @@ public class VelocityResource implements Comparable<VelocityResource> {
 	}
 	
 	public static VelocityResource create(Resource resource, Model model) {
-		Property rdfType = p(model, "rdf:type");
-		
-		if (resource.hasProperty(rdfType, r(model, "v:Address")))
-			return new Address(resource, model);
-		else
-			return new VelocityResource(resource, model);
+		StmtIterator rdfTypes = resource.listProperties(p(model, "rdf:type"));
+		while (rdfTypes.hasNext()) {
+			RDFNode node = rdfTypes.next().getObject();
+			if (!node.isURIResource())
+				continue;
+			String abbreviated = Namespaces.abbreviate((Resource) node);
+			if (classMap.containsKey(abbreviated))
+				try {
+					return classMap.get(abbreviated).getConstructor(Resource.class, Model.class).newInstance(resource, model);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+		}
+		return new VelocityResource(resource, model);
 	}
 	
 	protected VelocityResource(Resource resource, Model model) {
@@ -46,10 +56,10 @@ public class VelocityResource implements Comparable<VelocityResource> {
 		this.fullModel = model;
 	}
 	
-	private static Property p(Model model, String s) {
+	protected static Property p(Model model, String s) {
 		return Namespaces.p(model, s);
 	}
-	private static Resource r(Model model, String s) {
+	protected static Resource r(Model model, String s) {
 		return Namespaces.r(model, s);
 	}
 	
@@ -93,10 +103,13 @@ public class VelocityResource implements Comparable<VelocityResource> {
 	}
 	
 	public String getLink() {
-		String link = "<a href=\""+escapeTool.xml(getURI())+"\">"+escapeTool.html(getLabel())+"</a>";
-		if (isForeign() && fullModel.listStatements(resource, (Property) null, (RDFNode) null).hasNext())
-			link += " <a href=\"/doc/?uri=" + escapeTool.url(getURI()) + "\">&#8962;</a>";
-		return link;
+		if (resource.isURIResource()) {
+			String link = "<a href=\""+escapeTool.xml(getURI())+"\">"+escapeTool.html(getLabel())+"</a>";
+			if (isForeign() && fullModel.listStatements(resource, (Property) null, (RDFNode) null).hasNext())
+				link += " <a href=\"/doc/?uri=" + escapeTool.url(getURI()) + "\">&#8962;</a>";
+			return link;
+		} else
+			return escapeTool.html(getLabel());
 	}
 	
 	public String toString() {
@@ -130,5 +143,15 @@ public class VelocityResource implements Comparable<VelocityResource> {
 	
 	public String getHTML() {
 		return getLink();
+	}
+	
+	private static final Map<String,Class<? extends VelocityResource>> getClassMap() {
+		Map<String,Class<? extends VelocityResource>> map = new HashMap<String,Class<? extends VelocityResource>>();
+		map.put("v:Address", Address.class);
+		
+		String[] telTypes = "BBS,Car,Cell,Fax,ISDN,Modem,Msg,PCS,Tel,Video,Voice".split(",");
+		for (String telType : telTypes)
+			map.put("v:"+telType, Tel.class);
+		return map;
 	}
 }
