@@ -70,6 +70,7 @@ public class SparqlServlet extends ModelServlet {
 		case Query.QueryTypeAsk:
 			break;
 		case Query.QueryTypeConstruct:
+			executeConstructQuery(qexec, context);
 			break;
 		case Query.QueryTypeDescribe:
 			executeDescribeQuery(qexec, context);
@@ -115,6 +116,20 @@ public class SparqlServlet extends ModelServlet {
 		context.put("model", model);
 		context.put("resources", resources);
 	}
+	
+	private void executeConstructQuery(QueryExecution qexec, VelocityContext context) {
+		Model model = qexec.execConstruct();
+		List<VelocityResource> resources = new LinkedList<VelocityResource>();
+		
+		ResIterator subjects = model.listSubjects();
+		while (subjects.hasNext())
+			resources.add(VelocityResource.create(subjects.next()));
+		
+		context.put("model", model);
+		context.put("resources", resources);
+	}
+	
+	
 	
 
 }
