@@ -1,10 +1,16 @@
 #define( $title )SPARQL#end
 #define( $content )
 
-#if($bindings)
+#if($error)
 <section>
   <h2>Results</h2>
   
+  <pre>$esc.html($error)</pre>
+</section>
+#elseif($bindings)
+<section>
+  <h2>Results</h2>
+
   <table>
     <thead>
       <tr>
@@ -25,6 +31,15 @@
 #end
     </tbody>
   </table>
+</section>
+#elseif($resources)
+<section>
+  <h2>Results</h2>
+  
+#foreach($resource in $resources)
+  <h3>$resource.label</h3>
+#parse("describe.vm")
+#end
 </section>
 #end
 

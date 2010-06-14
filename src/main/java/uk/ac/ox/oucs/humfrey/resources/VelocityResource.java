@@ -22,7 +22,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 
 public class VelocityResource implements Comparable<VelocityResource> {
 	protected static final String labelProperties[] = {"rdfs_label", "skos_prefLabel", "dc_title"};
-	private static EscapeTool escapeTool = new EscapeTool(); 
+	protected static EscapeTool escapeTool = new EscapeTool(); 
 	Resource resource;
 	Model fullModel;
 	Model model;
@@ -93,11 +93,18 @@ public class VelocityResource implements Comparable<VelocityResource> {
 	}
 	
 	public String getLink() {
-		return "<a href=\""+getURI()+"\">"+escapeTool.html(getLabel())+"</a>";
+		String link = "<a href=\""+escapeTool.xml(getURI())+"\">"+escapeTool.html(getLabel())+"</a>";
+		if (isForeign() && fullModel.listStatements(resource, (Property) null, (RDFNode) null).hasNext())
+			link += " <a href=\"/doc/?uri=" + escapeTool.url(getURI()) + "\">&#8962;</a>";
+		return link;
 	}
 	
 	public String toString() {
 		return getLink();
+	}
+	
+	public boolean isForeign() {
+		return resource.isURIResource() && !resource.getURI().matches("^http://([a-z\\-]+\\.)?data.ox.ac.uk/id/");
 	}
 	
 	public Map<VelocityResource,Set<Object>> getPropertyMap() {

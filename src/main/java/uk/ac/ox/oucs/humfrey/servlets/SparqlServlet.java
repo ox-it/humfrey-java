@@ -12,13 +12,18 @@ import org.apache.velocity.VelocityContext;
 
 import uk.ac.ox.oucs.humfrey.resources.VelocityResource;
 
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryExecException;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QueryParseException;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 public class SparqlServlet extends ModelServlet {
@@ -27,44 +32,89 @@ public class SparqlServlet extends ModelServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		Model model = namedGraphSet.asJenaModel("");
-		String query = req.getParameter("query");
-		List<List<Object>> results = null;
-		List<String> bindings = null;
+		String queryString = req.getParameter("query");
+
 		
-		if (query != null) {
-			QueryExecution qexec = QueryExecutionFactory.create(query, model);
+		VelocityContext context = new VelocityContext();
+		
+		if (queryString != null) {
 			try {
-				ResultSet resultset = qexec.execSelect();
-				bindings = resultset.getResultVars();
-				results = new LinkedList<List<Object>>();
-				while (resultset.hasNext()) {
-					QuerySolution soln = resultset.next();
-					List<Object> result = new LinkedList<Object>();
-					for (String binding : bindings) {
-						RDFNode node = soln.get(binding);
-						if (node.isResource())
-							result.add(VelocityResource.create((Resource) node));
-						else
-							result.add(((Literal) node).getValue());
-					}
-					results.add(result);
+				Query query = QueryFactory.create(queryString);
+				
+				QueryExecution qexec = null;
+				try {
+					qexec = QueryExecutionFactory.create(query, model);
+					executeQuery(qexec, query.getQueryType(), context);
+				} catch (QueryExecException e) {
+					context.put("error", e.getMessage());
+				} finally {
+					if (qexec != null)
+						qexec.close();
 				}
-			} finally {
-				qexec.close();
+				
+			} catch (QueryParseException e) {
+				context.put("error", e.getMessage());
 			}
 
 		}
 		
-		VelocityContext context = new VelocityContext();
-		context.put("query", query);
-		context.put("results", results);
-		context.put("bindings", bindings);
+		context.put("query", queryString);
 		
 		templater.render(resp, "sparql.vm", context);
 	}
 
 	private static final long serialVersionUID = -8371160059122150837L;
 	
+	private void executeQuery(QueryExecution qexec, int queryType, VelocityContext context) {
+		switch (queryType) {
+		case Query.QueryTypeAsk:
+			break;
+		case Query.QueryTypeConstruct:
+			break;
+		case Query.QueryTypeDescribe:
+			executeDescribeQuery(qexec, context);
+			break;
+		case Query.QueryTypeSelect:
+			executeSelectQuery(qexec, context);
+			break;
+		case Query.QueryTypeUnknown:
+			break;
+		}
+	}
+	
+	private void executeSelectQuery(QueryExecution qexec, VelocityContext context) {
+		ResultSet resultset = qexec.execSelect();
+		List<List<Object>> results = new LinkedList<List<Object>>();;
+		List<String> bindings = resultset.getResultVars();;
+		
+		while (resultset.hasNext()) {
+			QuerySolution soln = resultset.next();
+			List<Object> result = new LinkedList<Object>();
+			for (String binding : bindings) {
+				RDFNode node = soln.get(binding);
+				if (node.isResource())
+					result.add(VelocityResource.create((Resource) node));
+				else
+					result.add(((Literal) node).getValue());
+			}
+			results.add(result);
+		}
+		
+		context.put("results", results);
+		context.put("bindings", bindings);
+	}
+	
+	private void executeDescribeQuery(QueryExecution qexec, VelocityContext context) {
+		Model model = qexec.execDescribe();
+		List<VelocityResource> resources = new LinkedList<VelocityResource>();
+		
+		ResIterator subjects = model.listSubjects();
+		while (subjects.hasNext())
+			resources.add(VelocityResource.create(subjects.next()));
+		
+		context.put("model", model);
+		context.put("resources", resources);
+	}
 	
 
 }

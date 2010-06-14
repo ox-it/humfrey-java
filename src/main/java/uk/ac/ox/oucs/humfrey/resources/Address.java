@@ -48,7 +48,7 @@ class Address extends VelocityResource {
 				else
 					notFirst = true;
 				out += "<span rel=\"" + addressProperty + "\">";
-				out += ((Literal) stmt.getObject()).getValue().toString();
+				out += escapeTool.html(((Literal) stmt.getObject()).getValue().toString());
 				out += "</span>";
 			}
 		}

@@ -5,6 +5,8 @@ import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.velocity.tools.generic.EscapeTool;
+
 import uk.ac.ox.oucs.humfrey.serializers.Serializer;
 
 import com.hp.hpl.jena.graph.Node;
@@ -15,6 +17,9 @@ public class Query {
 	String format = null;
 	String serialization = null;
 	String contentType = null;
+	String serverHostPart = null;
+	boolean foreignResource = false;
+	private static EscapeTool escapeTool = new EscapeTool(); 
 	
 	public Query(Serializer serializer, HttpServletRequest req) throws InvalidFormatException {
 		try {
@@ -22,10 +27,12 @@ public class Query {
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
+		serverHostPart = buildURL(url.getProtocol(), url.getHost(), url.getPort(), "/").toString();
 		String path = url.getPath();
 		if (path.startsWith("/id/")) {
 			uri = Node.createURI(url.toString());
 			setFormat(negotiateContent(req.getHeader("Accept")));
+			
 		} else if (path.equals("/doc/")) {
 			uri = Node.createURI(req.getParameter("uri"));
 			try {
@@ -34,6 +41,7 @@ public class Query {
 				throw new RuntimeException(e);
 			}
 			String format = req.getParameter("format");
+			foreignResource = true;
 			if (format == null)
 				setFormat(negotiateContent(req.getHeader("Accept")));
 			else {
@@ -80,6 +88,24 @@ public class Query {
 	
 	private void setFormat(String format) {
 		this.format = format;
+	}
+	
+	public String getDocURL() {
+		return getDocURL(null);
+	}
+	
+	public String getDocURL(String format) {
+		String docURL;
+		if (foreignResource) {
+			docURL = serverHostPart + "doc/?uri=" + escapeTool.url(uri.toString());
+			if (format != null)
+				docURL += "&format=" + format;
+		} else {
+			docURL = getDocRoot().toString();
+			if (format != null)
+				docURL += "." + format;
+		}
+		return docURL;
 	}
 	
 	private String negotiateContent(String header) {

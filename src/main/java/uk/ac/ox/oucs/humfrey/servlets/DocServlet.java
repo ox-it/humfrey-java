@@ -68,10 +68,10 @@ public class DocServlet extends ModelServlet {
 		Property dct_format = Namespaces.dct.p(model, "format");
 		Property rdf_type = Namespaces.rdf.p(model, "type");
 		Property foaf_primaryTopic = Namespaces.foaf.p(model, "primaryTopic");
-		RDFNode docURI = model.createResource(query.getDocRoot().toString());
+		RDFNode docURI = model.createResource(query.getDocURL());
 		
 		for (Entry<String, AbstractSerializer> entry : serializer.getSerializers().entrySet()) {
-			Resource docFormatURI = model.createResource(query.getDocRoot()+"."+entry.getKey());
+			Resource docFormatURI = model.createResource(query.getDocURL(entry.getKey()));
 			docFormatURI
 				.addProperty(dct_isFormatOf, docURI)
 				.addProperty(rdf_type, Namespaces.dctype.r(model, "Text"))
