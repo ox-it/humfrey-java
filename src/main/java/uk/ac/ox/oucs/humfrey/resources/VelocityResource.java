@@ -1,13 +1,16 @@
 /**
  * 
  */
-package uk.ac.ox.oucs.humfrey;
+package uk.ac.ox.oucs.humfrey.resources;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.velocity.tools.generic.EscapeTool;
+
+import uk.ac.ox.oucs.humfrey.Namespaces;
 import uk.ac.ox.oucs.humfrey.serializers.Serializer;
 
 import com.hp.hpl.jena.rdf.model.Literal;
@@ -19,31 +22,48 @@ import com.hp.hpl.jena.rdf.model.Statement;
 
 public class VelocityResource implements Comparable<VelocityResource> {
 	protected static final String labelProperties[] = {"rdfs_label", "skos_prefLabel", "dc_title"};
+	private static EscapeTool escapeTool = new EscapeTool(); 
 	Resource resource;
 	Model fullModel;
 	Model model;
 	
-	public VelocityResource(Resource resource) {
-		this(resource, resource.getModel());
+	public static VelocityResource create(Resource resource) {
+		return create(resource, resource.getModel());
 	}
 	
-	public VelocityResource(Resource resource, Model model) {
+	public static VelocityResource create(Resource resource, Model model) {
+		Property rdfType = p(model, "rdf:type");
+		
+		if (resource.hasProperty(rdfType, r(model, "v:Address")))
+			return new Address(resource, model);
+		else
+			return new VelocityResource(resource, model);
+	}
+	
+	protected VelocityResource(Resource resource, Model model) {
 		this.resource = resource;
 		this.model = resource.getModel();
 		this.fullModel = model;
 	}
 	
+	private static Property p(Model model, String s) {
+		return Namespaces.p(model, s);
+	}
+	private static Resource r(Model model, String s) {
+		return Namespaces.r(model, s);
+	}
+	
 	public Object get(String key) {
-		String parts[] = key.split("_", 2);
-		String prefix = Namespaces.getURI(parts[0]), local = parts[1];
-		Statement statement = resource.getProperty(fullModel.createProperty(prefix, local));
+		Statement statement = resource.getProperty(Namespaces.p(fullModel, key));
 		if (statement == null)
 			return null;
 		RDFNode object = statement.getObject();
-		if (object.isLiteral())
+		if (object.isLiteral() && ((Literal) object).getDatatypeURI() == null)
+			return ((Literal) object).getString();
+		else if (object.isLiteral())
 			return ((Literal) object).getValue();
 		else
-			return new VelocityResource((Resource) object, fullModel);
+			return VelocityResource.create((Resource) object, fullModel);
 	}
 	
 	public String getURI() {
@@ -73,7 +93,7 @@ public class VelocityResource implements Comparable<VelocityResource> {
 	}
 	
 	public String getLink() {
-		return "<a href=\""+getURI()+"\">"+getLabel()+"</a>";
+		return "<a href=\""+getURI()+"\">"+escapeTool.html(getLabel())+"</a>";
 	}
 	
 	public String toString() {
@@ -85,12 +105,12 @@ public class VelocityResource implements Comparable<VelocityResource> {
 		Map<VelocityResource,Set<Object>> newPropertyMap = new HashMap<VelocityResource,Set<Object>>();
 		for (Property property : oldPropertyMap.keySet()) {
 			Set<Object> propertySet = new HashSet<Object>();
-			newPropertyMap.put(new VelocityResource(property, fullModel), propertySet);
+			newPropertyMap.put(VelocityResource.create(property, fullModel), propertySet);
 			for (RDFNode node : oldPropertyMap.get(property)) {
 				if (node.isLiteral())
-					propertySet.add(node.toString());
+					propertySet.add(node);
 				else
-					propertySet.add(new VelocityResource((Resource) node, fullModel));
+					propertySet.add(VelocityResource.create((Resource) node, fullModel));
 			}
 		}
 		return newPropertyMap;
@@ -99,5 +119,9 @@ public class VelocityResource implements Comparable<VelocityResource> {
 	@Override
 	public int compareTo(VelocityResource other) {
 		return this.getLabel().compareTo(other.getLabel());
+	}
+	
+	public String getHTML() {
+		return getLink();
 	}
 }

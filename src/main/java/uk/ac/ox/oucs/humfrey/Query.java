@@ -5,18 +5,18 @@ import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 
+import uk.ac.ox.oucs.humfrey.serializers.Serializer;
+
 import com.hp.hpl.jena.graph.Node;
 
 public class Query {
-	static final String[] formats = {"rdf", "html", "n3", "ttl", "nt"};
-	
 	Node uri = null;
 	URL url = null;
 	String format = null;
 	String serialization = null;
 	String contentType = null;
 	
-	public Query(HttpServletRequest req) throws InvalidFormatException {
+	public Query(Serializer serializer, HttpServletRequest req) throws InvalidFormatException {
 		try {
 			url = new URL(req.getRequestURL().toString());
 		} catch (MalformedURLException e) {
@@ -26,19 +26,35 @@ public class Query {
 		if (path.startsWith("/id/")) {
 			uri = Node.createURI(url.toString());
 			setFormat(negotiateContent(req.getHeader("Accept")));
+		} else if (path.equals("/doc/")) {
+			uri = Node.createURI(req.getParameter("uri"));
+			try {
+				url = new URL(req.getParameter("uri"));
+			} catch (MalformedURLException e) {
+				throw new RuntimeException(e);
+			}
+			String format = req.getParameter("format");
+			if (format == null)
+				setFormat(negotiateContent(req.getHeader("Accept")));
+			else {
+				if (serializer.hasFormat(format))
+					setFormat(format);
+				else
+					throw new InvalidFormatException();
+			}
 		} else if (path.startsWith("/graph/")
 				|| path.startsWith("/ontology/")
 				|| path.startsWith("/doc/")) {
 			if (path.startsWith("/doc/"))
 				path = "/id/" + path.substring(5);
-			for (String format : formats) {
+			for (String format : serializer.getFormats()) {
 				if (path.endsWith("."+format)) {
 					setFormat(format);
 					path = path.substring(0, path.lastIndexOf('.'));
 				}
 			}
 			if (format == null)
-				throw new InvalidFormatException();
+				setFormat(negotiateContent(req.getHeader("Accept")));
 			url = buildURL(url.getProtocol(), url.getHost(), url.getPort(), path);
 			uri = Node.createURI(url.toString());
 		}
@@ -53,10 +69,10 @@ public class Query {
 	
 	static public URL buildURL(String protocol, String host, int port, String path) {
 		try {
-		if (port == 80)
-			return new URL(protocol, host, path);
-		else
-			return new URL(protocol, host, port, path);
+			if (port == 80)
+				return new URL(protocol, host, path);
+			else
+				return new URL(protocol, host, port, path);
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
@@ -86,11 +102,14 @@ public class Query {
 		return "html";
 	}
 	
-	public Node getURI() {
+	public Node getNode() {
 		return uri;
 	}
 	public URL getURL() {
 		return url;
+	}
+	public String getURI() {
+		return url.toString();
 	}
 	public String getFormat() {
 		return format;

@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.humfrey;
+package uk.ac.ox.oucs.humfrey.servlets;
 
 import java.io.IOException;
 import java.net.URL;
@@ -6,6 +6,8 @@ import java.net.URL;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import uk.ac.ox.oucs.humfrey.Query;
 
 import com.hp.hpl.jena.rdf.model.Model;
 

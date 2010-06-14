@@ -1,4 +1,4 @@
-package uk.ac.ox.oucs.humfrey;
+package uk.ac.ox.oucs.humfrey.servlets;
 
 import java.net.URL;
 import java.util.HashSet;
@@ -8,7 +8,9 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import uk.ac.ox.oucs.humfrey.serializers.Serializer;
+import uk.ac.ox.oucs.humfrey.Namespaces;
+import uk.ac.ox.oucs.humfrey.Query;
+import uk.ac.ox.oucs.humfrey.serializers.AbstractSerializer;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -32,6 +34,8 @@ public class DocServlet extends ModelServlet {
 		Model model = getModel();
 		URL url = query.getURL();
 		
+		
+		
 		if (containsQuerySubject(model, query)) {
 			Model resourceModel = buildModelForResource(model.createResource(url.toString()));
 			addFormatInformation(resourceModel, query);
@@ -54,7 +58,7 @@ public class DocServlet extends ModelServlet {
 		while (stmts.hasNext()) {
 			Statement stmt = stmts.next();
 			model.add(stmt);
-			if (stmt.getObject() instanceof Resource && !seen.contains(stmt.getObject()))
+			if (stmt.getObject().isAnon() && !seen.contains(resource))
 				buildModelForResource(model, seen, resource);
 		}
 	}
@@ -66,13 +70,13 @@ public class DocServlet extends ModelServlet {
 		Property foaf_primaryTopic = Namespaces.foaf.p(model, "primaryTopic");
 		RDFNode docURI = model.createResource(query.getDocRoot().toString());
 		
-		for (Entry<String, Serializer> entry : serializers.entrySet()) {
+		for (Entry<String, AbstractSerializer> entry : serializer.getSerializers().entrySet()) {
 			Resource docFormatURI = model.createResource(query.getDocRoot()+"."+entry.getKey());
 			docFormatURI
 				.addProperty(dct_isFormatOf, docURI)
 				.addProperty(rdf_type, Namespaces.dctype.r(model, "Text"))
 				.addProperty(rdf_type, Namespaces.foaf.r(model, "Document"))
-				.addProperty(foaf_primaryTopic, model.createResource(query.getURI().toString()))
+				.addProperty(foaf_primaryTopic, model.createResource(query.getNode().toString()))
 				.addProperty(dct_format, entry.getValue().getContentType());
 		}
 	}

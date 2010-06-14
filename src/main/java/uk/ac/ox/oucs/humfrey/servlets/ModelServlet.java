@@ -1,10 +1,12 @@
-package uk.ac.ox.oucs.humfrey;
+package uk.ac.ox.oucs.humfrey.servlets;
 
-import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -18,27 +20,46 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
-import de.fuberlin.wiwiss.ng4j.impl.NamedGraphSetImpl;
+import de.fuberlin.wiwiss.ng4j.db.NamedGraphSetDB;
 
+import uk.ac.ox.oucs.humfrey.InvalidFormatException;
+import uk.ac.ox.oucs.humfrey.Namespaces;
+import uk.ac.ox.oucs.humfrey.Query;
+import uk.ac.ox.oucs.humfrey.Templater;
 import uk.ac.ox.oucs.humfrey.serializers.*;
 
 public class ModelServlet extends HttpServlet {
-	static NamedGraphSet namedGraphSet = null;
-	static Map<String,Serializer> serializers = getSerializers();
+	static NamedGraphSet namedGraphSet;
+	Serializer serializer;
+	Templater templater;
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 2653035836289316041L;
 
 	@Override
-	public void init(ServletConfig config) throws ServletException {
-		namedGraphSet = new NamedGraphSetImpl();
-/*		ServletContext context = getServletContext();
-		namedGraphSet = HumfreyModelFactory.getNamedGraphSet(
-			context.getInitParameter("databaseURL"),
-			context.getInitParameter("databaseUser"),
-			context.getInitParameter("databasePassword")); */
-		super.init(config);
+	public void init() throws ServletException {
+		super.init();
+		
+		try {
+			Class.forName("org.postgresql.Driver");
+		} catch (ClassNotFoundException e) {
+			throw new ServletException(e);
+		}
+		
+		ServletContext context = getServletContext();
+		Connection connection;
+		try {
+			connection = DriverManager.getConnection(
+					context.getInitParameter("humfrey.databaseURL"),
+					context.getInitParameter("humfrey.databaseUser"),
+					context.getInitParameter("humfrey.databasePassword"));
+		} catch (SQLException e) {
+			throw new ServletException(e);
+		}
+		namedGraphSet = new NamedGraphSetDB(connection);
+		templater = new Templater(getServletContext());
+		serializer = new Serializer(namedGraphSet.asJenaModel(""), templater);
 	}
 	
 	public void serializeGraph(Graph graph, Query query, HttpServletRequest req, HttpServletResponse resp) {
@@ -47,18 +68,12 @@ public class ModelServlet extends HttpServlet {
 	}
 	
 	public void serializeModel(Model model, Query query, HttpServletRequest req, HttpServletResponse resp) {
-		if (serializers.containsKey(query.getFormat())) {
-			try {
-				serializers.get(query.getFormat()).serializeModel(model, query, req, resp);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
+		serializer.serializeModel(model, query, req, resp);
 	}
 	
 	protected Query getQuery(HttpServletRequest req, HttpServletResponse resp) {
 		try {
-			return new Query(req);
+			return new Query(serializer, req);
 		} catch (InvalidFormatException e) {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return null;
@@ -87,15 +102,6 @@ public class ModelServlet extends HttpServlet {
 	
 	protected boolean containsQuerySubject(Model model, Query query) {
 		return model.containsResource(model.createResource(query.getURL().toString()));
-	}
-	
-	private static Map<String,Serializer> getSerializers() {
-		Map<String,Serializer> serializers = new HashMap<String,Serializer>();
-		serializers.put("rdf", new RDFXMLSerializer());
-		serializers.put("n3", new Notation3Serializer());
-		serializers.put("nt", new NTripleSerializer());
-		serializers.put("ttl", new TurtleSerializer());
-		return serializers;
 	}
 	
 	protected Map<String,String> getPrefixMapping() {

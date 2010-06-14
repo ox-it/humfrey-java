@@ -1,9 +1,29 @@
-#define( $title )data.ox.ac.uk#end
+#define( $title )Welcome to data.ox.ac.uk#end
 #define( $content )
 
-<p>Triples: $size</p>
+<p>
+  <strong>data.ox.ac.uk</strong> is a basic store for open linked data at the
+  University of Oxford. It also maintains a catalog of datasets that are
+  available at the University in other formats.
+</p>
 
-<a href="/datasets/">Datasets</a>
+<section>
+  <h2>Status</h2>
+
+  <p>data.ox.ac.uk currently contains <strong>$size</strong> triples and <a href="/datasets/"><strong>$datasetCount</strong> datasets</a> over <strong>$graphCount</strong> named graphs.</p>
+
+</section>
+
+<section>
+  <h2>What is open linked data?</h2>
+
+  <p>
+    Open linked data is
+  </p>
+
+</section>
+
+
 
 #end
 #parse( "base.vm" )

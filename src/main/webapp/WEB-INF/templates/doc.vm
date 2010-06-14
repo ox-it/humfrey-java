@@ -1,24 +1,47 @@
 #define( $title )$resource.label#end
 #define( $content )
 
-<dl>
+<section about="$resource.URI">
+#if( $resource.foaf_logo )
+  <img src="$resource.foaf_logo.URI" alt="Logo for $resource.label" class="resource-logo"/>
+#end
+#if( $resource.foaf_img )
+  <img src="$resource.foaf_img.URI" alt="Representative image of $resource.label" class="resource-img"/>
+#end
+
+#if ($resource.dct_description )
+  <p class="resource-description">$esc.html($resource.dct_description)</p>
+#elseif ($resource.dc_description)
+  <p class="resource-description">$esc.html($resource.dc_description)</p>
+#end
+
+<table>
+  <tbody>
+#set( $counter = 0)
 #foreach( $entry in $resource.propertyMap.entrySet() )
-  <dt>$entry.key</dt>
+#set( $counter = $counter + 1)
+    <tr class="#if(($counter % 2) == 0)even#{else}odd#{end}-row">
+      <th>$esc.html($entry.key)</th>
+      <td>
 #foreach( $object in $entry.value )
-  <dd>$object</dd>
+        <p>$esc.html($object)</p>
 #end
+      </td>
+    </tr>
 #end
-</dl>
+  </tbody>
+</table>
 
 <footer>
-  <p>
+  <p class="formats">
     Other formats: 
     <ul>
 #foreach( $entry in $serializers.entrySet() )#if( $entry.key != "html")
-      <li><a href="${query.docRoot}.${entry.key}">$entry.value.name</a></li>
+      <li><a href="${query.docRoot}.${entry.key}">$esc.html($entry.value.name)</a></li>
 #end#end
     </ul>
   </p>
 </footer>
+</section>
 #end
 #parse( "base.vm" )

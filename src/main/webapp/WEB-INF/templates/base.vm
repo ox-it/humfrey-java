@@ -1,23 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-	"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
   <title>$title</title>
+  <link rel="stylesheet" href="/media/base.css" type="text/css"/>
 </head>
 <body>
   <header>
-    <div>data.ox.ac.uk</div>
-    <h1>$title</h1>
+    <div class="constrain-width">
+      <img src="/media/logo.gif" width="251" height="78" alt="University of Oxford"/>
+      <div>data.ox.ac.uk</div>
+    </div>
   </header>
   
-  <section>
-    $content
-  </section>
+  <nav>
+    <div class="constrain-width">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/docs/">Documentation</a></li>
+        <li><a href="/datasets/">Datasets</a></li>
+        <li><a href="/sparql/">SPARQL</a></li>
+        <li><a href="/resources/">Resources</a></li>
+        <li><a href="/about/">About</a></li>
+      </ul>
+    </div>
+  </nav>
+  
+  <article>
+    <div class="constrain-width">
+      <h1>$title</h1>
+  
+      <div class="content">
+        $content
+      </div>
+    </div>
+  </article>
   
   <footer>
-    Site &copy; University of Oxford
+    <div class="constrain-width">
+      Site &#169; University of Oxford
+      &#8212;
+      <a href="mailto:opendata@oucs.ox.ac.uk">opendata@oucs.ox.ac.uk</a>
+    </div>
   </footer>
 </body>
 </html>

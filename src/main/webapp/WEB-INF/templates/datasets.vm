@@ -1,33 +1,30 @@
 #define( $title )Datasets#end
 #define( $content )
 
+<section>
 <table>
   <thead>
     <tr>
       <th>Name</th>
       <th>Publisher</th>
+      <th>License</th>
+      <th>Released</th>
       <th>Description</th>
     </tr>
   </thead>
   <tbody>
 #foreach( $dataset in $datasets )
     <tr>
-      <td>$dataset.label</td>
-      <td>$dataset.dct_publisher</td>
-      <td>$dataset.dct_description</td>
-      <td>
-      <dl>
-#foreach( $entry in $dataset.propertyMap.entrySet() )
-  <dt>$entry.key</dt>
-#foreach( $object in $entry.value )
-  <dd>$object</dd>
-#end
-#end
-</dl>
-      </td>
+      <td>$dataset</td>
+      <td>$!esc.html($dataset.dct_publisher)</td>
+      <td>$!esc.html($dataset.dct_license)</td>
+      <td>$!esc.html($dataset.dct_issued)</td>
+      <td>$!esc.html($dataset.dct_description)</td>
+
     </tr>
 #end
   </tbody>
 </table>
+</section>
 #end
 #parse( "base.vm" )

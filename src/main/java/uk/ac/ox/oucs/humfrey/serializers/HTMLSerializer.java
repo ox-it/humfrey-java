@@ -10,7 +10,7 @@ import org.apache.velocity.VelocityContext;
 
 import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.Templater;
-import uk.ac.ox.oucs.humfrey.VelocityResource;
+import uk.ac.ox.oucs.humfrey.resources.VelocityResource;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
@@ -18,6 +18,12 @@ class HTMLSerializer extends AbstractSerializer {
 	
 	Templater templater;
 	Map<String,AbstractSerializer> serializers;
+	String[][] groups = {
+			{"Naming", "rdfs_label", "skos_prefLabel", "skos_altLabel", "dc_title"},
+			{"Overview", "dct_publisher", "dct_issued", "dct_license", "foaf_homepage"},
+			{"Location", "v_adr", "geo_lat", "geo_long"},
+			{"Contact", "v_tel", "foaf_mbox", "foaf_phone"},
+	};
 	
 	public HTMLSerializer(Templater templater, Map<String,AbstractSerializer> serializers) {
 		this.templater = templater;
@@ -41,7 +47,7 @@ class HTMLSerializer extends AbstractSerializer {
 
 		VelocityContext context = new VelocityContext();
 		
-		context.put("resource", new VelocityResource(fullModel.getResource(query.getURI()), model));
+		context.put("resource", VelocityResource.create(fullModel.getResource(query.getURI()), fullModel));
 		context.put("query", query);
 		context.put("serializers", serializers);
 		context.put("model", fullModel);

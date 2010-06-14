@@ -1,0 +1,59 @@
+#define( $title )SPARQL#end
+#define( $content )
+
+#if($bindings)
+<section>
+  <h2>Results</h2>
+  
+  <table>
+    <thead>
+      <tr>
+#foreach( $binding in $bindings )
+        <th>$binding</th>
+#end
+      </tr>
+    </thead>
+    <tbody>
+#set( $counter = 0 )
+#foreach( $result in $results )
+#set( $counter = $counter + 1)
+      <tr class="#if(($counter % 2) == 0)even#{else}odd#{end}-row">
+#foreach( $binding in $result )
+        <td>$esc.html($binding)</td>
+#end
+      </tr>
+#end
+    </tbody>
+  </table>
+</section>
+#end
+
+<section>
+  <h2>Query</h2>
+  <form method="get" action=".">
+
+  <p>Enter a query below. If you need some guidance, see <a href="/resources/#sparql">our resources</a>.</p>
+
+#if($!query)
+    <textarea class="sparql-query" name="query">$esc.html($query)</textarea>
+#else
+    <textarea class="sparql-query" name="query">$esc.html("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT DISTINCT ?type
+    WHERE {
+      ?thing a ?type
+    }    LIMIT 10")</textarea>
+#end
+
+    <p>
+      <input type="submit" value="Query"/>
+    </p>
+  </form>
+</section>
+
+#end
+#parse( "base.vm" )
