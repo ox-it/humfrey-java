@@ -37,7 +37,7 @@
   <h2>Results</h2>
   
 #foreach($resource in $resources)
-  <h3>$resource.label</h3>
+  <h3>$esc.html($resource.label)</h3>
 #parse("describe.vm")
 #end
 </section>
