@@ -64,18 +64,18 @@ public class DocServlet extends ModelServlet {
 	}
 	
 	private void addFormatInformation(Model model, Query query) {
-		Property dct_isFormatOf = Namespaces.dct.p(model, "isFormatOf");
-		Property dct_format = Namespaces.dct.p(model, "format");
-		Property rdf_type = Namespaces.rdf.p(model, "type");
-		Property foaf_primaryTopic = Namespaces.foaf.p(model, "primaryTopic");
+		Property dct_isFormatOf = Namespaces.dct.p("isFormatOf");
+		Property dct_format = Namespaces.dct.p("format");
+		Property rdf_type = Namespaces.rdf.p("type");
+		Property foaf_primaryTopic = Namespaces.foaf.p("primaryTopic");
 		RDFNode docURI = model.createResource(query.getDocURL());
 		
 		for (Entry<String, AbstractSerializer> entry : serializer.getSerializers().entrySet()) {
 			Resource docFormatURI = model.createResource(query.getDocURL(entry.getKey()));
 			docFormatURI
 				.addProperty(dct_isFormatOf, docURI)
-				.addProperty(rdf_type, Namespaces.dctype.r(model, "Text"))
-				.addProperty(rdf_type, Namespaces.foaf.r(model, "Document"))
+				.addProperty(rdf_type, Namespaces.dctype.r("Text"))
+				.addProperty(rdf_type, Namespaces.foaf.r("Document"))
 				.addProperty(foaf_primaryTopic, model.createResource(query.getNode().toString()))
 				.addProperty(dct_format, entry.getValue().getContentType());
 		}

@@ -1,0 +1,70 @@
+#define( $title )$resource.label | Dataset#end
+#define( $content )
+
+<section>
+  <p>$resource.dct_description</p>
+  
+  <section>
+    <h2>Overview</h2>
+    <table>
+      <tbody>
+        <tr class="odd-row">
+          <th>Last updated:</th>
+          <td>$!resource.dct_modified</td>
+        </tr><tr class="even-row">
+          <th>Released:</th>
+          <td>$!resource.dct_issued</td>
+        </tr><tr class="odd-row">
+          <th>Publisher:</th>
+          <td>$!resource.dct_publisher</td>
+        </tr><tr class="even-row">
+          <th>Update frequency:</th>
+          <td>$!resource.dct_accrualPeriodicity</td>
+        </tr><tr class="odd-row">
+          <th>Tags:</th>
+          <td>#foreach( $keyword in $resource.getAll("dcat_keyword") )$keyword #end</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+  <section>
+    <h2>Further details</h2>
+    <table>
+      <tbody>
+        <tr class="odd-row">
+          <th>Homepage:</th>
+          <td>$!resource.foaf_homepage</td>
+        </tr><tr class="even-row">
+          <th>Related documents:</th>
+          <td>#foreach( $res in $resource.getAll("dct_references") )<p>$res</p> #end</td>
+        </tr><tr class="odd-row">
+          <th>License:</th>
+          <td>$!resource.dct_license</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+#if( $resource.has("dcat_distribution") )
+  <section>
+    <h2>Distributions</h2>
+    <table>
+      <tbody>
+#foreach( $distribution in $resource.getAll("dcat_distribution") )
+#set( $counter = 0)
+#set( $counter = $counter + 1)
+    <tr class="#if(($counter % 2) == 0)even#{else}odd#{end}-row">
+      <td>$!distribution.dct_format</td>
+      <td>
+        <a href="$esc.xml($!distribution.dcat_accessURL)">Download</a>
+      </td>
+    </tr>
+#end
+  </tbody>
+    </table>
+  </section>
+#end
+
+</section>
+#end
+#parse( "base.vm" )

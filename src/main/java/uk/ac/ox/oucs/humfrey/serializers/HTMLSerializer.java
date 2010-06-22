@@ -10,9 +10,12 @@ import org.apache.velocity.VelocityContext;
 
 import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.Templater;
+import uk.ac.ox.oucs.humfrey.namespaces.DCAT;
 import uk.ac.ox.oucs.humfrey.resources.VelocityResource;
 
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 class HTMLSerializer extends AbstractSerializer {
 	
@@ -46,13 +49,19 @@ class HTMLSerializer extends AbstractSerializer {
 			throws IOException {
 
 		VelocityContext context = new VelocityContext();
+		Resource resource = fullModel.getResource(query.getURI());
 		
-		context.put("resource", VelocityResource.create(fullModel.getResource(query.getURI()), fullModel));
+		context.put("resource", VelocityResource.create(resource, fullModel));
 		context.put("query", query);
 		context.put("serializers", serializers);
 		context.put("model", fullModel);
 		
-		templater.render(resp.getWriter(), "doc.vm", context);
+		resp.setContentType(getContentType());
+		
+		if (resource.hasProperty(RDF.type, DCAT.Dataset))
+			templater.render(resp.getWriter(), "dataset.vm", context);
+		else
+			templater.render(resp.getWriter(), "doc.vm", context);
 	}
 
 }

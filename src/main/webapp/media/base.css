@@ -90,13 +90,12 @@ div.content {
 	margin:1em;
 }
 
-img.resource-logo, img.resource-img {
+img.resource-logo, img.resource-img, div.google-map {
 	float:right;
 	border:1em solid #ffffff;
         border-right:0;
 	margin:0;
 	border-top:0;
-	clear:both;
 }
 
 table {
@@ -155,4 +154,9 @@ p.formats li {
 textarea.sparql-query {
 	width:100%;
 	height:20em;
+}
+
+div.google-map {
+	width:200px;
+	height:150px;
 }

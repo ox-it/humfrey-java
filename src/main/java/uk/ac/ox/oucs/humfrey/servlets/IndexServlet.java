@@ -23,7 +23,7 @@ public class IndexServlet extends ModelServlet {
 		VelocityContext context = new VelocityContext();
 		context.put("size", model.size());
 		
-		ResIterator datasetIterator = model.listSubjectsWithProperty(Namespaces.rdf.p(model, "type"), Namespaces.dcat.r(model, "Dataset"));
+		ResIterator datasetIterator = model.listSubjectsWithProperty(Namespaces.rdf.p("type"), Namespaces.dcat.r("Dataset"));
 		int datasetCount = 0;
 		while (datasetIterator.hasNext()) {
 			datasetIterator.next();

@@ -3,14 +3,18 @@ package uk.ac.ox.oucs.humfrey;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.hp.hpl.jena.datatypes.BaseDatatype;
+import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 final public class Namespaces {
 	public static Namespace aiiso = new Namespace("aiiso", "http://purl.org/vocab/aiiso/schema#");
 	public static Namespace cc = new Namespace("cc", "http://web.resource.org/cc/");
+	public static Namespace cs = new Namespace("cs", "http://purl.org/vocab/changeset/schema#");
 	public static Namespace owl = new Namespace("owl", "http://www.w3.org/2002/07/owl#");
 	public static Namespace dc = new Namespace("dc", "http://purl.org/dc/elements/1.1/");
 	public static Namespace dcat = new Namespace("dcat", "http://vocab.deri.ie/dcat#");
@@ -58,6 +62,7 @@ final public class Namespaces {
 		String prefix, ns;
 		static Map<String,String> register = new HashMap<String,String>();
 		static Map<String,String> uriRegister = new HashMap<String,String>();
+		static Model ontModel = ModelFactory.createOntologyModel();
 		
 		public Namespace(String prefix, String ns) {
 			this.prefix = prefix;
@@ -68,11 +73,14 @@ final public class Namespaces {
 		public Node _(String local) {
 			return Node.createURI(ns + local);
 		}
-		public Property p(Model model, String local) {
-			return model.createProperty(ns, local);
+		public Property p(String local) {
+			return ontModel.createProperty(ns, local);
 		}
-		public Resource r(Model model, String local) {
-			return model.createResource(ns+local);
+		public Resource r(String local) {
+			return ontModel.createResource(ns+local);
+		}
+		public RDFDatatype d(String local) {
+			return new BaseDatatype(ns + local);
 		}
 		public String getPrefixString() {
 			return "PREFIX "+prefix+": <"+ns+">\n";

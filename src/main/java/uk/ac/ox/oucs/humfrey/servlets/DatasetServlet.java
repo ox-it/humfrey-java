@@ -22,7 +22,7 @@ public class DatasetServlet extends ModelServlet {
 		Model model = namedGraphSet.asJenaModel("");
 
 		List<VelocityResource> datasets = new LinkedList<VelocityResource>();
-		ResIterator datasetIterator = model.listSubjectsWithProperty(Namespaces.rdf.p(model, "type"), Namespaces.dcat.r(model, "Dataset"));
+		ResIterator datasetIterator = model.listSubjectsWithProperty(Namespaces.rdf.p("type"), Namespaces.dcat.r("Dataset"));
 		while (datasetIterator.hasNext())
 			datasets.add(VelocityResource.create(datasetIterator.next()));
 		Collections.sort(datasets);

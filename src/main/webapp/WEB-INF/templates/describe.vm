@@ -5,6 +5,34 @@
 #if( $resource.foaf_img )
   <img src="$resource.foaf_img.URI" alt="Representative image of $resource.label" class="resource-img"/>
 #end
+#if( $resource.geo_lat && $resource.geo_long )
+#if( $map_counter )
+#set( $map_counter = $map_counter + 1)
+#else
+#set( $map_counter = 1)
+#end
+  <div id="google-map-$map_counter" class="google-map" title="Click for bigger map."></div>
+  <script type="application/javascript">
+    $(function() {
+      var latLng = new google.maps.LatLng($resource.geo_lat, $resource.geo_long);
+      var options = {
+        zoom: 13,
+        center: latLng,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+      };
+      var map = new google.maps.Map(document.getElementById("google-map-$map_counter"), options);
+      var marker = new google.maps.Marker({
+        position: latLng,
+        map: map,
+        title:"$esc.javascript($resource.label)",
+      }); 
+      google.maps.event.addListener(map, 'click', function() {
+        window.location = "http://maps.google.co.uk/?q=$esc.url($esc.javascript($resource.label))@$resource.geo_lat,$resource.geo_long";
+      });
+
+    });
+  </script>      
+#end
 
 #if ($resource.dct_description )
   <p class="resource-description">$esc.html($resource.dct_description)</p>

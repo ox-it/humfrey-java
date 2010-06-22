@@ -5,9 +5,11 @@ package uk.ac.ox.oucs.humfrey.resources;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.velocity.tools.generic.EscapeTool;
 
 import uk.ac.ox.oucs.humfrey.Namespaces;
@@ -18,11 +20,10 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 public class VelocityResource implements Comparable<VelocityResource> {
-	protected static final String labelProperties[] = {"rdfs_label", "skos_prefLabel", "dc_title", "rdf_value"};
+	protected static final String labelProperties[] = {"rdfs_label", "skos_prefLabel", "dct_title", "dc_title", "rdf_value"};
 	protected static final Map<String,Class<? extends VelocityResource>> classMap = getClassMap();
 	protected static EscapeTool escapeTool = new EscapeTool(); 
 	Resource resource;
@@ -64,16 +65,41 @@ public class VelocityResource implements Comparable<VelocityResource> {
 	}
 	
 	public Object get(String key) {
-		Statement statement = resource.getProperty(Namespaces.p(fullModel, key));
-		if (statement == null)
-			return null;
-		RDFNode object = statement.getObject();
-		if (object.isLiteral() && ((Literal) object).getDatatypeURI() == null)
-			return ((Literal) object).getString();
-		else if (object.isLiteral())
-			return ((Literal) object).getValue();
+		Iterator<Object> resources = getAll(key);
+		if (resources.hasNext())
+			return resources.next();
 		else
-			return VelocityResource.create((Resource) object, fullModel);
+			return null;
+	}
+	public boolean has(String key) {
+		return resource.hasProperty(Namespaces.p(fullModel, key));
+	}
+	
+	public Iterator<Object> getAll(String key) {
+		final StmtIterator statements = resource.listProperties(Namespaces.p(fullModel, key));
+		return new Iterator<Object>() {
+			@Override
+			public boolean hasNext() {
+				return statements.hasNext();
+			}
+
+			@Override
+			public Object next() {
+				RDFNode object = statements.next().getObject();
+				if (object.isLiteral() && ((Literal) object).getDatatypeURI() == null)
+					return ((Literal) object).getString();
+				else if (object.isLiteral())
+					return ((Literal) object).getValue();
+				else
+					return VelocityResource.create((Resource) object, fullModel);
+			}
+
+			@Override
+			public void remove() {
+				throw new NotImplementedException();
+			}
+			
+		};
 	}
 	
 	public String getURI() {
