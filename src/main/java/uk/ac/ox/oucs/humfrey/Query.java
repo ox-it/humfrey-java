@@ -6,7 +6,6 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
-import java.util.LinkedList;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -34,7 +33,7 @@ public class Query {
 	boolean foreignResource = false;
 	private static EscapeTool escapeTool = new EscapeTool(); 
 	
-	public Query(String userPrefix, Model configModel,
+	public Query(String accountPrefix, Model configModel,
 			Serializer serializer, HttpServletRequest req)
 	throws InvalidFormatException, InvalidCredentialsException, UnknownQueryException {
 		try {
@@ -110,7 +109,7 @@ public class Query {
 
 			String username = credentials[0], password = credentials[1];
 			String[] passwordHash;
-			Statement pwStmt = configModel.getProperty(configModel.createResource(userPrefix + username), PERM.password);
+			Statement pwStmt = configModel.getProperty(configModel.createResource(accountPrefix + username), PERM.password);
 			passwordHash = ((Literal) pwStmt.getObject()).getString().split("\\$");
 			MessageDigest md;
 			try {
@@ -128,7 +127,7 @@ public class Query {
 				formatter.format("%02x", b);
 			if (formatter.toString().equals(passwordHash[1]))
 				this.username = username;
-				this.user = configModel.createResource(userPrefix + username);
+				this.user = configModel.createResource(accountPrefix + username);
 		}
 		if (authorization != null && username == null)
 			throw new InvalidCredentialsException();

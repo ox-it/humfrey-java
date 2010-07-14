@@ -91,7 +91,7 @@ public class ModelServlet extends HttpServlet {
 	protected Query getQuery(HttpServletRequest req, HttpServletResponse resp) {
 		ServletContext context = getServletContext();
 		try {
-			return new Query(context.getInitParameter("humfrey.userPrefix"), configModel, serializer, req);
+			return new Query(context.getInitParameter("humfrey.accountPrefix"), configModel, serializer, req);
 		} catch (Query.InvalidFormatException e) {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return null;

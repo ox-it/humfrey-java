@@ -32,8 +32,8 @@
     <param-value>editlog</param-value>
   </context-param>
   <context-param>
-    <param-name>humfrey.userPrefix</param-name>
-    <param-value>http://data.ox.ac.uk/id/user/</param-value>
+    <param-name>humfrey.accountPrefix</param-name>
+    <param-value>http://data.ox.ac.uk/id/account/</param-value>
   </context-param>
   <context-param>
     <param-name>humfrey.wwwAuthenticateHeader</param-name>
