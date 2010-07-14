@@ -36,6 +36,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+import com.hp.hpl.jena.vocabulary.DC;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.XSD;
 
@@ -178,7 +179,9 @@ public class GraphServlet extends ModelServlet {
 				 .addProperty(Namespaces.dc.p("date"),
 						 	  date)
 				 .addProperty(CS.subjectOfChange,
-						 	  changesetModel.createResource(query.getURI()));
+						 	  changesetModel.createResource(query.getURI()))
+				 .addProperty(DC.creator,
+						      query.getUser());
 		
 		for (Triple triple : before)
 			changeset.addProperty(Namespaces.cs.p("removal"),
@@ -188,7 +191,7 @@ public class GraphServlet extends ModelServlet {
 								  changesetModel.asStatement(triple).createReifiedStatement());
 
 		
-		String filename = query.getURL().getPath() + "/" + date + ".n3";
+		String filename = query.getURL().getPath() + "/" + date.getLexicalForm() + ".n3";
 		File file = new File(logDirectory, filename);
 		file.getParentFile().mkdirs();
 		FileWriter ow = new FileWriter(new File(logDirectory.getPath(), filename));

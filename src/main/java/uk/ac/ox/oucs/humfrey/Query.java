@@ -6,6 +6,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
+import java.util.LinkedList;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,6 +19,7 @@ import uk.ac.ox.oucs.humfrey.serializers.Serializer;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 
 public class Query {
@@ -28,6 +30,7 @@ public class Query {
 	String contentType = null;
 	String serverHostPart = null;
 	String username = null;
+	Resource user = null;
 	boolean foreignResource = false;
 	private static EscapeTool escapeTool = new EscapeTool(); 
 	
@@ -125,6 +128,7 @@ public class Query {
 				formatter.format("%02x", b);
 			if (formatter.toString().equals(passwordHash[1]))
 				this.username = username;
+				this.user = configModel.createResource(userPrefix + username);
 		}
 		if (authorization != null && username == null)
 			throw new InvalidCredentialsException();
@@ -214,6 +218,9 @@ public class Query {
 	
 	public String getUsername() {
 		return username;
+	}
+	public Resource getUser() {
+		return user;
 	}
 	
 	public class InvalidFormatException extends Exception {
