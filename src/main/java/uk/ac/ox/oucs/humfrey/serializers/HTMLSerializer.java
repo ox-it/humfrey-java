@@ -97,6 +97,7 @@ class HTMLSerializer extends AbstractSerializer {
 		context.put("results", results);
 		context.put("bindings", bindings);
 		context.put("query", req.getParameter("query"));
+		resp.setContentType(getContentType());
 		templater.render(resp, "sparql.vm", context);
 	}
 	

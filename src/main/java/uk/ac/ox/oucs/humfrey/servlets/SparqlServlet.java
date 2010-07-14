@@ -56,6 +56,7 @@ public class SparqlServlet extends ModelServlet {
 				resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
+			resp.setContentType("text/html");
 			context.put("query", queryString);
 			templater.render(resp, "sparql.vm", context);
 		}
