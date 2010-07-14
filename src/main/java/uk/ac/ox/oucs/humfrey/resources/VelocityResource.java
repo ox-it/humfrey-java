@@ -44,7 +44,7 @@ public class VelocityResource implements Comparable<VelocityResource> {
 			String abbreviated = Namespaces.abbreviate((Resource) node);
 			if (classMap.containsKey(abbreviated))
 				try {
-					return classMap.get(abbreviated).getConstructor(Resource.class, Model.class).newInstance(resource, model);
+					return classMap.get(abbreviated).getConstructor(Resource.class, String.class, Model.class).newInstance(resource, homeURIRegex, model);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
