@@ -82,20 +82,19 @@ public class Query {
 				setFormat(negotiateContent(req.getHeader("Accept")));
 			url = buildURL(url.getProtocol(), url.getHost(), url.getPort(), path);
 			uri = Node.createURI(url.toString());
-		} else if (path.equals("/sparql")) {
-			setFormat(negotiateContent(req.getHeader("Accept")));
-		} else if (path.startsWith("/sparql.")) {
-			for (String format : serializer.getFormats()) {
-				if (path.substring(8).equals(format)) {
-					setFormat(format);
-					path = path.substring(0, path.lastIndexOf('.'));
-				}
-			}
+		} else if (path.equals("/sparql/")) {
+			String format = req.getParameter("format");
+			foreignResource = true;
 			if (format == null)
-				throw new InvalidFormatException();
-		} else {
-			throw new UnknownQueryException();
+				setFormat(negotiateContent(req.getHeader("Accept")));
+			else {
+				if (serializer.hasFormat(format))
+					setFormat(format);
+				else
+					throw new InvalidFormatException();
+			}
 		}
+
 		
 		String authorization = req.getHeader("Authorization");
 		if (authorization != null && authorization.startsWith("Basic ")) {

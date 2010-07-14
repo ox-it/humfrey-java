@@ -10,6 +10,9 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.NotImplementedException;
+
+import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -33,6 +36,7 @@ public class Serializer {
 		serializers.put("ttl", new TurtleSerializer());
 		serializers.put("js", new JSONSerializer(true));
 		serializers.put("json", new JSONSerializer(false));
+		serializers.put("sxr", new SparqlXMLSerializer());
 		serializers.put("html", new HTMLSerializer(templater, serializers, homeURIRegex));
 	}
 	
@@ -54,6 +58,41 @@ public class Serializer {
 			serializer.serializeModel(model, fullModel, query, req, resp);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
+		} catch (NotImplementedException e) {
+			resp.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+		}
+	}
+	
+	public void serializeResultSet(ResultSet resultset, Query query, HttpServletRequest req, HttpServletResponse resp) {
+		AbstractSerializer serializer = serializers.get(query.getFormat());
+		try {
+			serializer.serializeResultSet(resultset, query, req, resp);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (NotImplementedException e) {
+			resp.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+		}
+	}
+	
+	public void serializeSparqlError(String message, Query query, HttpServletRequest req, HttpServletResponse resp) {
+		AbstractSerializer serializer = serializers.get(query.getFormat());
+		try {
+			serializer.serializeSparqlError(message, query, req, resp);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (NotImplementedException e) {
+			resp.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+		}
+	}
+	
+	public void serializeResources(Model model, Query query, HttpServletRequest req, HttpServletResponse resp) {
+		AbstractSerializer serializer = serializers.get(query.getFormat());
+		try {
+			serializer.serializeResources(model, fullModel, query, req, resp);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (NotImplementedException e) {
+			resp.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
 		}
 	}
 	

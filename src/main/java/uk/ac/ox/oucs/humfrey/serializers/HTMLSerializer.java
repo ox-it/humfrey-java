@@ -1,6 +1,8 @@
 package uk.ac.ox.oucs.humfrey.serializers;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,7 +15,12 @@ import uk.ac.ox.oucs.humfrey.Templater;
 import uk.ac.ox.oucs.humfrey.namespaces.DCAT;
 import uk.ac.ox.oucs.humfrey.resources.VelocityResource;
 
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 
@@ -64,6 +71,46 @@ class HTMLSerializer extends AbstractSerializer {
 			templater.render(resp.getWriter(), "dataset.vm", context);
 		else
 			templater.render(resp.getWriter(), "doc.vm", context);
+	}
+	
+	@Override
+	public void serializeResultSet(ResultSet resultset, Query query, HttpServletRequest req, HttpServletResponse resp) throws IOException{
+		List<List<Object>> results = new LinkedList<List<Object>>();
+		List<String> bindings = resultset.getResultVars();
+		
+		while (resultset.hasNext()) {
+			QuerySolution soln = resultset.next();
+			List<Object> result = new LinkedList<Object>();
+			for (String binding : bindings) {
+				RDFNode node = soln.get(binding);
+				if (node.isResource())
+					result.add(VelocityResource.create((Resource) node, homeURIRegex));
+				else
+					result.add(((Literal) node).getValue());
+			}
+			results.add(result);
+		}
+		
+		VelocityContext context = new VelocityContext();
+		context.put("results", results);
+		context.put("bindings", bindings);
+		context.put("query", req.getParameter("query"));
+		templater.render(resp, "sparql.vm", context);
+	}
+	
+	@Override
+	public void serializeResources(Model model, Model fullModel, Query query, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+		List<VelocityResource> resources = new LinkedList<VelocityResource>();
+		
+		ResIterator subjects = model.listSubjects();
+		while (subjects.hasNext())
+			resources.add(VelocityResource.create(subjects.next(), homeURIRegex));
+		
+		VelocityContext context = new VelocityContext();
+		context.put("model", model);
+		context.put("resources", resources);
+		templater.render(resp, "sparql.vm", context);
 	}
 
 }

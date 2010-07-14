@@ -45,7 +45,7 @@
 
 <section>
   <h2>Query</h2>
-  <form method="get" action="sparql">
+  <form method="get" action=".">
 
   <p>Enter a query below. If you need some guidance, see <a href="/resources/#sparql">our resources</a>.</p>
 
