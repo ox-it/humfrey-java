@@ -134,7 +134,9 @@ class JSONSerializer extends AbstractSerializer {
 				writer.write("\"" + StringEscapeUtils.escapeXml(binding) + "\": {");
 				
 				RDFNode node = soln.get(binding);
-				if (node.isLiteral()) {
+				if (node == null) {
+					writer.write("type: \"null\"");
+				} else if (node.isLiteral()) {
 					Literal literal = (Literal) node;
 					writer.write("type: \"literal\", ");
 					if (literal.getDatatypeURI() != null)

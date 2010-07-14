@@ -83,7 +83,9 @@ class HTMLSerializer extends AbstractSerializer {
 			List<Object> result = new LinkedList<Object>();
 			for (String binding : bindings) {
 				RDFNode node = soln.get(binding);
-				if (node.isResource())
+				if (node == null)
+					result.add(null);
+				else if (node.isResource())
 					result.add(VelocityResource.create((Resource) node, homeURIRegex));
 				else
 					result.add(((Literal) node).getValue());

@@ -25,7 +25,11 @@
 #set( $counter = $counter + 1)
       <tr class="#if(($counter % 2) == 0)even#{else}odd#{end}-row">
 #foreach( $binding in $result )
+#if( $binding )
         <td>$esc.html($binding)</td>
+#else
+        <td></td>
+#end
 #end
       </tr>
 #end
