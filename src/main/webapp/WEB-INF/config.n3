@@ -1,0 +1,16 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix perm: <http://vocab.ox.ac.uk/perm#> .
+@prefix sioc: <http://rdfs.org/sioc/ns#> .
+@prefix user: <http://data.ox.ac.uk/id/user/> .
+
+user:root a foaf:OnlineAccount ;
+  perm:password "root$239c057b704a2722eb47b00fba5d043851592f76" ;
+  perm:mayAdminister [
+    a perm:ResourceMatch ;
+    perm:matchExpression "^http://([a-z]+\\.)?data.ox.ac.uk/(ontology|graph)/.+$"
+  ], [
+    a perm:ResourceMatch ;
+    perm:matchExpression ".+"
+  ] .
+
+
