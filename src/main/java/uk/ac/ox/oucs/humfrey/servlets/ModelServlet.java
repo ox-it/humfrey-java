@@ -36,6 +36,7 @@ public class ModelServlet extends HttpServlet {
 	static Model configModel;
 	Serializer serializer;
 	Templater templater;
+	String homeURIRegex;
 	/**
 	 * 
 	 */
@@ -63,7 +64,8 @@ public class ModelServlet extends HttpServlet {
 		}
 		namedGraphSet = new NamedGraphSetDB(connection);
 		templater = new Templater(getServletContext());
-		serializer = new Serializer(namedGraphSet.asJenaModel(""), templater);
+		serializer = new Serializer(namedGraphSet.asJenaModel(""), templater, homeURIRegex);
+		homeURIRegex = context.getInitParameter("humfrey.homeURIRegex");
 
 		configModel = ModelFactory.createDefaultModel();
 		
@@ -96,6 +98,9 @@ public class ModelServlet extends HttpServlet {
 		} catch (Query.InvalidCredentialsException e) {
 			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			resp.addHeader("WWW-Authenticate", context.getInitParameter("humfrey.wwwAuthenticateHeader"));
+			return null;
+		} catch (Query.UnknownQueryException e) {
+			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return null;
 		}
 	}

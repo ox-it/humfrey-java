@@ -24,7 +24,7 @@ public class DatasetServlet extends ModelServlet {
 		List<VelocityResource> datasets = new LinkedList<VelocityResource>();
 		ResIterator datasetIterator = model.listSubjectsWithProperty(Namespaces.rdf.p("type"), Namespaces.dcat.r("Dataset"));
 		while (datasetIterator.hasNext())
-			datasets.add(VelocityResource.create(datasetIterator.next()));
+			datasets.add(VelocityResource.create(datasetIterator.next(), homeURIRegex));
 		Collections.sort(datasets);
 
 		VelocityContext context = new VelocityContext();

@@ -24,7 +24,7 @@ public class Serializer {
 	private Map<String,AbstractSerializer> serializers = new HashMap<String,AbstractSerializer>();
 	Model fullModel;
 	
-	public Serializer(Model fullModel, Templater templater) {
+	public Serializer(Model fullModel, Templater templater, String homeURIRegex) {
 		this.fullModel = fullModel;
 		
 		serializers.put("rdf", new RDFXMLSerializer());
@@ -33,7 +33,7 @@ public class Serializer {
 		serializers.put("ttl", new TurtleSerializer());
 		serializers.put("js", new JSONSerializer(true));
 		serializers.put("json", new JSONSerializer(false));
-		serializers.put("html", new HTMLSerializer(templater, serializers));
+		serializers.put("html", new HTMLSerializer(templater, serializers, homeURIRegex));
 	}
 	
 	public boolean hasFormat(String format) {

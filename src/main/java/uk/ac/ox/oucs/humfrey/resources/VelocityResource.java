@@ -29,12 +29,13 @@ public class VelocityResource implements Comparable<VelocityResource> {
 	Resource resource;
 	Model fullModel;
 	Model model;
+	String homeURIRegex;
 	
-	public static VelocityResource create(Resource resource) {
-		return create(resource, resource.getModel());
+	public static VelocityResource create(Resource resource, String homeURIRegex) {
+		return create(resource, homeURIRegex, resource.getModel());
 	}
 	
-	public static VelocityResource create(Resource resource, Model model) {
+	public static VelocityResource create(Resource resource, String homeURIRegex, Model model) {
 		StmtIterator rdfTypes = resource.listProperties(p(model, "rdf:type"));
 		while (rdfTypes.hasNext()) {
 			RDFNode node = rdfTypes.next().getObject();
@@ -48,13 +49,14 @@ public class VelocityResource implements Comparable<VelocityResource> {
 					throw new RuntimeException(e);
 				}
 		}
-		return new VelocityResource(resource, model);
+		return new VelocityResource(resource, homeURIRegex, model);
 	}
 	
-	protected VelocityResource(Resource resource, Model model) {
+	protected VelocityResource(Resource resource, String homeURIRegex, Model model) {
 		this.resource = resource;
 		this.model = resource.getModel();
 		this.fullModel = model;
+		this.homeURIRegex = homeURIRegex;
 	}
 	
 	protected static Property p(Model model, String s) {
@@ -91,7 +93,7 @@ public class VelocityResource implements Comparable<VelocityResource> {
 				else if (object.isLiteral())
 					return ((Literal) object).getValue();
 				else
-					return VelocityResource.create((Resource) object, fullModel);
+					return VelocityResource.create((Resource) object, homeURIRegex, fullModel);
 			}
 
 			@Override
@@ -131,7 +133,7 @@ public class VelocityResource implements Comparable<VelocityResource> {
 	public String getLink() {
 		if (resource.isURIResource()) {
 			String link = "<a href=\""+escapeTool.xml(getURI())+"\">"+escapeTool.html(getLabel())+"</a>";
-			if (isForeign() && fullModel.listStatements(resource, (Property) null, (RDFNode) null).hasNext())
+			if (!isHomeURI() && fullModel.listStatements(resource, (Property) null, (RDFNode) null).hasNext())
 				link += " <a href=\"/doc/?uri=" + escapeTool.url(getURI()) + "\">&#8962;</a>";
 			return link;
 		} else
@@ -142,8 +144,8 @@ public class VelocityResource implements Comparable<VelocityResource> {
 		return getLink();
 	}
 	
-	public boolean isForeign() {
-		return resource.isURIResource() && !resource.getURI().matches("^http://([a-z\\-]+\\.)?data.ox.ac.uk/id/");
+	public boolean isHomeURI() {
+		return resource.isURIResource() && homeURIRegex != null && resource.getURI().matches(homeURIRegex);
 	}
 	
 	public Map<VelocityResource,Set<Object>> getPropertyMap() {
@@ -151,12 +153,12 @@ public class VelocityResource implements Comparable<VelocityResource> {
 		Map<VelocityResource,Set<Object>> newPropertyMap = new HashMap<VelocityResource,Set<Object>>();
 		for (Property property : oldPropertyMap.keySet()) {
 			Set<Object> propertySet = new HashSet<Object>();
-			newPropertyMap.put(VelocityResource.create(property, fullModel), propertySet);
+			newPropertyMap.put(VelocityResource.create(property, homeURIRegex, fullModel), propertySet);
 			for (RDFNode node : oldPropertyMap.get(property)) {
 				if (node.isLiteral())
 					propertySet.add(node);
 				else
-					propertySet.add(VelocityResource.create((Resource) node, fullModel));
+					propertySet.add(VelocityResource.create((Resource) node, homeURIRegex, fullModel));
 			}
 		}
 		return newPropertyMap;

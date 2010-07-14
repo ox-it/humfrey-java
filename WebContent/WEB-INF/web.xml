@@ -39,6 +39,10 @@
     <param-name>humfrey.wwwAuthenticateHeader</param-name>
     <param-value>Basic "data.ox.ac.uk"</param-value>
   </context-param>
+  <context-param>
+    <param-name>humfrey.homeURIRegex</param-name>
+    <param-value>^http://([a-z\\-]+\\.)?data.ox.ac.uk/id/</param-value>
+  </context-param>
   
   <servlet>
   	<servlet-name>index</servlet-name>
@@ -98,7 +102,7 @@
 
   <servlet-mapping>
     <servlet-name>dataset</servlet-name>
-    <url-pattern>/datasets/</url-pattern>
+    <url-pattern>/datasets</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
@@ -123,7 +127,7 @@
   
   <servlet-mapping>
     <servlet-name>sparql</servlet-name>
-    <url-pattern>/sparql/</url-pattern>
+    <url-pattern>/sparql</url-pattern>
   </servlet-mapping>
   
   <!--

@@ -21,6 +21,7 @@ class HTMLSerializer extends AbstractSerializer {
 	
 	Templater templater;
 	Map<String,AbstractSerializer> serializers;
+	String homeURIRegex;
 	String[][] groups = {
 			{"Naming", "rdfs_label", "skos_prefLabel", "skos_altLabel", "dc_title"},
 			{"Overview", "dct_publisher", "dct_issued", "dct_license", "foaf_homepage"},
@@ -28,9 +29,10 @@ class HTMLSerializer extends AbstractSerializer {
 			{"Contact", "v_tel", "foaf_mbox", "foaf_phone"},
 	};
 	
-	public HTMLSerializer(Templater templater, Map<String,AbstractSerializer> serializers) {
+	public HTMLSerializer(Templater templater, Map<String,AbstractSerializer> serializers, String homeURIRegex) {
 		this.templater = templater;
 		this.serializers = serializers;
+		this.homeURIRegex = homeURIRegex;
 	}
 
 	@Override
@@ -51,7 +53,7 @@ class HTMLSerializer extends AbstractSerializer {
 		VelocityContext context = new VelocityContext();
 		Resource resource = fullModel.getResource(query.getURI());
 		
-		context.put("resource", VelocityResource.create(resource, fullModel));
+		context.put("resource", VelocityResource.create(resource, homeURIRegex, fullModel));
 		context.put("query", query);
 		context.put("serializers", serializers);
 		context.put("model", fullModel);

@@ -18,8 +18,8 @@ class Address extends VelocityResource {
 		"v:region", "v:postal-code", "v:country-name",
 	};
 
-	public Address(Resource resource, Model model) {
-		super(resource, model);
+	public Address(Resource resource, String homeURIRegex, Model model) {
+		super(resource, homeURIRegex, model);
 	}
 
 	@Override

@@ -17,8 +17,8 @@ public class Tel extends VelocityResource {
 		"bulletin board system", "mobile", "video", "fax", "car phone",
 		"personal communications service", "home", "work", "domestic"};
 
-	public Tel(Resource resource, Model model) {
-		super(resource, model);
+	public Tel(Resource resource, String homeURIRegex, Model model) {
+		super(resource, homeURIRegex, model);
 	}
 	
 	@Override

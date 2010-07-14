@@ -31,6 +31,10 @@ public class SparqlServlet extends ModelServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
+		uk.ac.ox.oucs.humfrey.Query query = getQuery(req, resp);
+		if (query == null)
+			return;
+		
 		Model model = namedGraphSet.asJenaModel("");
 		String queryString = req.getParameter("query");
 
@@ -39,12 +43,12 @@ public class SparqlServlet extends ModelServlet {
 		
 		if (queryString != null) {
 			try {
-				Query query = QueryFactory.create(queryString);
+				Query sparqlQuery = QueryFactory.create(queryString);
 				
 				QueryExecution qexec = null;
 				try {
-					qexec = QueryExecutionFactory.create(query, model);
-					executeQuery(qexec, query.getQueryType(), context);
+					qexec = QueryExecutionFactory.create(sparqlQuery, model);
+					executeQuery(qexec, sparqlQuery.getQueryType(), context);
 				} catch (QueryExecException e) {
 					context.put("error", e.getMessage());
 				} finally {
@@ -56,6 +60,9 @@ public class SparqlServlet extends ModelServlet {
 				context.put("error", e.getMessage());
 			}
 
+		} else if (!query.getFormat().equals("html")) {
+			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
 		}
 		
 		context.put("query", queryString);
@@ -94,7 +101,7 @@ public class SparqlServlet extends ModelServlet {
 			for (String binding : bindings) {
 				RDFNode node = soln.get(binding);
 				if (node.isResource())
-					result.add(VelocityResource.create((Resource) node));
+					result.add(VelocityResource.create((Resource) node, homeURIRegex));
 				else
 					result.add(((Literal) node).getValue());
 			}
@@ -111,7 +118,7 @@ public class SparqlServlet extends ModelServlet {
 		
 		ResIterator subjects = model.listSubjects();
 		while (subjects.hasNext())
-			resources.add(VelocityResource.create(subjects.next()));
+			resources.add(VelocityResource.create(subjects.next(), homeURIRegex));
 		
 		context.put("model", model);
 		context.put("resources", resources);
@@ -123,7 +130,7 @@ public class SparqlServlet extends ModelServlet {
 		
 		ResIterator subjects = model.listSubjects();
 		while (subjects.hasNext())
-			resources.add(VelocityResource.create(subjects.next()));
+			resources.add(VelocityResource.create(subjects.next(), homeURIRegex));
 		
 		context.put("model", model);
 		context.put("resources", resources);

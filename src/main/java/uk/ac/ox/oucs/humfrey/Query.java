@@ -31,7 +31,9 @@ public class Query {
 	boolean foreignResource = false;
 	private static EscapeTool escapeTool = new EscapeTool(); 
 	
-	public Query(String userPrefix, Model configModel, Serializer serializer, HttpServletRequest req) throws InvalidFormatException, InvalidCredentialsException {
+	public Query(String userPrefix, Model configModel,
+			Serializer serializer, HttpServletRequest req)
+	throws InvalidFormatException, InvalidCredentialsException, UnknownQueryException {
 		try {
 			if (req.getHeader("X-Request-URL") != null)
 				url = new URL(req.getHeader("X-Request-URL"));
@@ -78,6 +80,19 @@ public class Query {
 				setFormat(negotiateContent(req.getHeader("Accept")));
 			url = buildURL(url.getProtocol(), url.getHost(), url.getPort(), path);
 			uri = Node.createURI(url.toString());
+		} else if (path.equals("/sparql")) {
+			setFormat(negotiateContent(req.getHeader("Accept")));
+		} else if (path.startsWith("/sparql.")) {
+			for (String format : serializer.getFormats()) {
+				if (path.substring(8).equals(format)) {
+					setFormat(format);
+					path = path.substring(0, path.lastIndexOf('.'));
+				}
+			}
+			if (format == null)
+				throw new InvalidFormatException();
+		} else {
+			throw new UnknownQueryException();
 		}
 		
 		String authorization = req.getHeader("Authorization");
@@ -206,6 +221,9 @@ public class Query {
 	}
 	public class InvalidCredentialsException extends Exception {
 		private static final long serialVersionUID = -3887601882049480797L;
+	}
+	public class UnknownQueryException extends Exception {
+		private static final long serialVersionUID = -3887601882049480798L;
 	}
 	
 
