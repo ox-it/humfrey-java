@@ -23,6 +23,22 @@
     <param-name>humfrey.databasePassword</param-name>
     <param-value>humfrey</param-value>
   </context-param>
+  <context-param>
+    <param-name>humfrey.configPath</param-name>
+    <param-value>webapps/humfrey-0.1/WEB-INF/config.n3</param-value>
+  </context-param>
+  <context-param>
+    <param-name>humfrey.logDirectory</param-name>
+    <param-value>editlog</param-value>
+  </context-param>
+  <context-param>
+    <param-name>humfrey.userPrefix</param-name>
+    <param-value>http://data.ox.ac.uk/id/user/</param-value>
+  </context-param>
+  <context-param>
+    <param-name>humfrey.wwwAuthenticateHeader</param-name>
+    <param-value>Basic "data.ox.ac.uk"</param-value>
+  </context-param>
   
   <servlet>
   	<servlet-name>index</servlet-name>

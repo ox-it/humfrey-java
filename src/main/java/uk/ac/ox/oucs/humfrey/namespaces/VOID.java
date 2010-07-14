@@ -8,5 +8,5 @@ public class VOID {
 	static Model ontModel = ModelFactory.createOntologyModel();
 	static String ns = "http://rdfs.org/ns/void#";
 
-	public static Resource Dataset = ontModel.createResource(ns + "date");
+	public static Resource Dataset = ontModel.createResource(ns + "dataset");
 }

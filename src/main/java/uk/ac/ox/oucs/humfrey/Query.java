@@ -1,15 +1,24 @@
 package uk.ac.ox.oucs.humfrey;
 
 import java.net.MalformedURLException;
+
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Formatter;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.velocity.tools.generic.EscapeTool;
 
+import uk.ac.ox.oucs.humfrey.namespaces.PERM;
 import uk.ac.ox.oucs.humfrey.serializers.Serializer;
 
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Statement;
 
 public class Query {
 	Node uri = null;
@@ -18,12 +27,16 @@ public class Query {
 	String serialization = null;
 	String contentType = null;
 	String serverHostPart = null;
+	String username = null;
 	boolean foreignResource = false;
 	private static EscapeTool escapeTool = new EscapeTool(); 
 	
-	public Query(Serializer serializer, HttpServletRequest req) throws InvalidFormatException {
+	public Query(String userPrefix, Model configModel, Serializer serializer, HttpServletRequest req) throws InvalidFormatException, InvalidCredentialsException {
 		try {
-			url = new URL(req.getRequestURL().toString());
+			if (req.getHeader("X-Request-URL") != null)
+				url = new URL(req.getHeader("X-Request-URL"));
+			else
+				url = new URL(req.getRequestURL().toString());
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
@@ -67,8 +80,41 @@ public class Query {
 			uri = Node.createURI(url.toString());
 		}
 		
+		String authorization = req.getHeader("Authorization");
+		if (authorization != null && authorization.startsWith("Basic ")) {
+			authorization = authorization.substring(6);
+			Base64 base64 = new Base64();
+			String[] credentials = (new String(base64.decode(authorization.getBytes()))).split(":", 2);
+
+
+			if (credentials.length != 2)
+				throw new InvalidCredentialsException();
+
+			String username = credentials[0], password = credentials[1];
+			String[] passwordHash;
+			Statement pwStmt = configModel.getProperty(configModel.createResource(userPrefix + username), PERM.password);
+			passwordHash = ((Literal) pwStmt.getObject()).getString().split("\\$");
+			MessageDigest md;
+			try {
+				md = MessageDigest.getInstance("SHA-1");
+			} catch (NoSuchAlgorithmException e) {
+				throw new RuntimeException(e);
+			}
+
+			md.update(passwordHash[0].getBytes());
+			md.update(password.getBytes());
+
+			Formatter formatter = new Formatter();
+			byte[] digest = md.digest();
+			for (byte b : digest)
+				formatter.format("%02x", b);
+			if (formatter.toString().equals(passwordHash[1]))
+				this.username = username;
+		}
+		if (authorization != null && username == null)
+			throw new InvalidCredentialsException();
 	}
-	
+
 	public URL getDocRoot() {
 		if (!url.getPath().startsWith("/id/"))
 			throw new AssertionError();
@@ -146,6 +192,21 @@ public class Query {
 	public String getSerialization() {
 		return serialization;
 	}
+
+	public boolean isAuthenticated() {
+		return username != null;
+	}
 	
+	public String getUsername() {
+		return username;
+	}
 	
+	public class InvalidFormatException extends Exception {
+		private static final long serialVersionUID = -3887601882049480796L;
+	}
+	public class InvalidCredentialsException extends Exception {
+		private static final long serialVersionUID = -3887601882049480797L;
+	}
+	
+
 }

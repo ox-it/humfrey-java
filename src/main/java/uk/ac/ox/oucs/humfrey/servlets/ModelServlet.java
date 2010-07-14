@@ -1,5 +1,9 @@
 package uk.ac.ox.oucs.humfrey.servlets;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -22,7 +26,6 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
 import de.fuberlin.wiwiss.ng4j.db.NamedGraphSetDB;
 
-import uk.ac.ox.oucs.humfrey.InvalidFormatException;
 import uk.ac.ox.oucs.humfrey.Namespaces;
 import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.Templater;
@@ -30,6 +33,7 @@ import uk.ac.ox.oucs.humfrey.serializers.*;
 
 public class ModelServlet extends HttpServlet {
 	static NamedGraphSet namedGraphSet;
+	static Model configModel;
 	Serializer serializer;
 	Templater templater;
 	/**
@@ -60,6 +64,17 @@ public class ModelServlet extends HttpServlet {
 		namedGraphSet = new NamedGraphSetDB(connection);
 		templater = new Templater(getServletContext());
 		serializer = new Serializer(namedGraphSet.asJenaModel(""), templater);
+
+		configModel = ModelFactory.createDefaultModel();
+		
+		InputStream is;
+		try {
+			File file = new File(context.getInitParameter("humfrey.configPath"));
+			is = new FileInputStream(file.getAbsolutePath());
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		configModel.read(is, null, "N3");
 	}
 	
 	public void serializeGraph(Graph graph, Query query, HttpServletRequest req, HttpServletResponse resp) {
@@ -72,10 +87,15 @@ public class ModelServlet extends HttpServlet {
 	}
 	
 	protected Query getQuery(HttpServletRequest req, HttpServletResponse resp) {
+		ServletContext context = getServletContext();
 		try {
-			return new Query(serializer, req);
-		} catch (InvalidFormatException e) {
+			return new Query(context.getInitParameter("humfrey.userPrefix"), configModel, serializer, req);
+		} catch (Query.InvalidFormatException e) {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return null;
+		} catch (Query.InvalidCredentialsException e) {
+			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			resp.addHeader("WWW-Authenticate", context.getInitParameter("humfrey.wwwAuthenticateHeader"));
 			return null;
 		}
 	}
