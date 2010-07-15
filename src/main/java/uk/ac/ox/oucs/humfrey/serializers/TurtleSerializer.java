@@ -1,7 +1,7 @@
 package uk.ac.ox.oucs.humfrey.serializers;
 
 class TurtleSerializer extends JenaSerializer {
-	protected String getSerialization() {
+	public String getSerialization() {
 		return "TURTLE";
 	}
 	public String getContentType() {

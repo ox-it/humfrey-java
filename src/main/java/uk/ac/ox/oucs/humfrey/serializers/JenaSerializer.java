@@ -10,8 +10,8 @@ import uk.ac.ox.oucs.humfrey.Query;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-abstract class JenaSerializer extends AbstractSerializer {
-	protected abstract String getSerialization();
+public abstract class JenaSerializer extends AbstractSerializer {
+	public abstract String getSerialization();
 	
 	@Override
 	public void serializeModel(Model model, Model fullModel, Query query, HttpServletRequest req,

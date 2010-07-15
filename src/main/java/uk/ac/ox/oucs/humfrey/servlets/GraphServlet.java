@@ -22,6 +22,8 @@ import uk.ac.ox.oucs.humfrey.Namespaces;
 import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.namespaces.CS;
 import uk.ac.ox.oucs.humfrey.namespaces.PERM;
+import uk.ac.ox.oucs.humfrey.serializers.AbstractSerializer;
+import uk.ac.ox.oucs.humfrey.serializers.JenaSerializer;
 
 import com.hp.hpl.jena.datatypes.BaseDatatype;
 import com.hp.hpl.jena.graph.Graph;
@@ -148,8 +150,14 @@ public class GraphServlet extends ModelServlet {
 		
 		Node node = query.getNode();
 		
+		AbstractSerializer as = serializer.get(query.getFormat());
+		if (!(as instanceof JenaSerializer)) {
+			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+		
 		Model model = ModelFactory.createDefaultModel();
-		model.read(req.getInputStream(), query.getURI());
+		model.read(req.getInputStream(), query.getURI(), ((JenaSerializer) as).getSerialization());
 		
 		Set<Triple> before;
 		if (namedGraphSet.containsGraph(node)) {
@@ -202,7 +210,7 @@ public class GraphServlet extends ModelServlet {
 	}
 	
 	static private boolean performPermissionsCheck(ServletContext context, Query query, HttpServletResponse resp, Property[] permissions) {
-		if (!hasPermission(context.getInitParameter("humfrey.userPrefix"), query.getUsername(), query.getURI(), permissions)) {
+		if (!hasPermission(context.getInitParameter("humfrey.accountPrefix"), query.getUsername(), query.getURI(), permissions)) {
 			if (query.isAuthenticated()) {
 				resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				return true;

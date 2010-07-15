@@ -40,6 +40,10 @@ public class Serializer {
 		serializers.put("html", new HTMLSerializer(templater, serializers, homeURIRegex));
 	}
 	
+	public AbstractSerializer get(String format) {
+		return serializers.get(format);
+	}
+	
 	public boolean hasFormat(String format) {
 		return serializers.containsKey(format);
 	}

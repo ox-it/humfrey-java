@@ -1,7 +1,7 @@
 package uk.ac.ox.oucs.humfrey.serializers;
 
 class Notation3Serializer extends JenaSerializer {
-	protected String getSerialization() {
+	public String getSerialization() {
 		return "N3";
 	}
 	public String getContentType() {
