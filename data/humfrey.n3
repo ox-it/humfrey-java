@@ -1,0 +1,23 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://data.ox.ac.uk/id/project/humfrey>
+    a doap:Project ;
+    doap:name "Humfrey" ;
+    rdfs:label "Humfrey" ;
+    doap:created "2010-05-11"^^xsd:date ;
+    doap:programming-language "Java" ;
+    doap:vendor <http://oxpoints.oucs.ox.ac.uk/id/00000000> ;
+    doap:homepage <http://github.com/alexsdutton/humfrey> ;
+    doap:repository [
+        a doap:GitRepository ;
+        doap:anon-root "git://github.com/alexsdutton/humfrey.git" ;
+        doap:browse <http://github.com/alexsdutton/humfrey> ] ;
+    dct:license <http://www.opensource.org/licenses/afl-3.0.php> ;
+    doap:license <http://www.opensource.org/licenses/afl-3.0.php> ;
+    doap:maintainer <http://alexdutton.co.uk/rdf#id> ;
+    doap:description "An RDF store with a RESTful update interface, using Java, Jena and NG4J"@en-GB .
