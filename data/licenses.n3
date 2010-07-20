@@ -17,6 +17,7 @@
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
 @prefix cc:      <http://web.resource.org/cc/> .
+@prefix exif:    <http://www.w3.org/2003/12/exif/ns> .
 
 <http://www.opendatacommons.org/licenses/pddl/1.0/>
       a       dctype:LicenseDocument ;
@@ -64,6 +65,16 @@ Works under CC0 do not require attribution. When citing the work, you should not
       a       dctype:LicenseDocument ;
       dct:title "Creative Commons Attribution-NonCommercial 3.0 Unported" ;
       foaf:logo <http://i.creativecommons.org/l/by-nc/3.0/88x31.png> .
+
+<http://creativecommons.org/licenses/by-nc-sa/2.0/>
+      a       dctype:LicenseDocument ;
+      dct:title "Creative Commons Attribution-NonCommercial-ShareAlike 2.0 Generic" ;
+      foaf:logo <http://i.creativecommons.org/l/by-nc-sa/2.0/88x31.png> .
+
+<http://creativecommons.org/licenses/by-nc-sa/2.0/uk/>
+      a       dctype:LicenseDocument ;
+      dct:title "Creative Commons Attribution-NonCommercial-ShareAlike 2.0 UK: England & Wales" ;
+      foaf:logo <http://i.creativecommons.org/l/by-nc-sa/2.0/88x31.png> .
 
 <http://creativecommons.org/licenses/by-nc-sa/3.0/>
       a       dctype:LicenseDocument ;
