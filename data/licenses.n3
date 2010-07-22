@@ -6,11 +6,13 @@
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix cc:      <http://creativecommons.org/ns#> .
 
-<> a dctype:Dataset, dcat:Dataset ;
+<> a dctype:Dataset, dcat:Dataset, foaf:Document ;
       dcterms:title "A collection of metadata about licenses." ;
       dcterms:license <http://www.opendatacommons.org/licenses/pddl/1.0/> ;
-      dcterms:creator <http://alexdutton.co.uk/rdf#me> ;
-      dcterms:rightsHolder <http://oxpoints.oucs.ox.ac.uk/id/00000000> .
+      dcterms:creator <http://alexdutton.co.uk/rdf#id> ;
+      dcterms:rightsHolder <http://oxpoints.oucs.ox.ac.uk/id/00000000> ;
+      dcterms:created "2010-07-20"^^xsd:date ;
+      dcterms:modified "2010-07-21"^^xsd:date .
 
 <http://www.opendatacommons.org/licenses/pddl/1.0/>
       a       dctype:LicenseDocument, cc:License ;
