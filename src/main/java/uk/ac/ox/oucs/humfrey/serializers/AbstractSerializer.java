@@ -26,7 +26,9 @@ public abstract class AbstractSerializer {
 		throw new NotImplementedException();
 	}
 	public void serializeSparqlError(String message, Query query, HttpServletRequest req, HttpServletResponse resp)  throws IOException {
-		throw new NotImplementedException();
+		resp.setContentType("text/plain");
+		resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		resp.getWriter().write("There was an error processing your query:\n\n" + message + "\n");
 	}
 	public void serializeResources(Model model, Model fullModel, Query query, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		serializeModel(model, fullModel, query, req, resp);
