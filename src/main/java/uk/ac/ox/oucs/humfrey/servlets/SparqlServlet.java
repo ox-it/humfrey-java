@@ -15,6 +15,7 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QueryParseException;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Model;
 
 public class SparqlServlet extends ModelServlet {
@@ -34,8 +35,7 @@ public class SparqlServlet extends ModelServlet {
 		
 		if (queryString != null) {
 			try {
-				Query sparqlQuery = QueryFactory.create(queryString);
-				
+				Query sparqlQuery = QueryFactory.create(queryString, Syntax.syntaxARQ);
 				QueryExecution qexec = null;
 				try {
 					qexec = QueryExecutionFactory.create(sparqlQuery, model);
