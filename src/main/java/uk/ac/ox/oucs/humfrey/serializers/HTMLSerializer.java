@@ -118,4 +118,19 @@ class HTMLSerializer extends AbstractSerializer {
 		templater.render(resp, "sparql.vm", context);
 	}
 
+	@Override
+	public void serializeSparqlError(String message, Query query,
+			HttpServletRequest req, HttpServletResponse resp)
+			throws IOException {
+		resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		resp.setContentType(getContentType());
+		
+		VelocityContext context = new VelocityContext();
+		resp.setContentType(getContentType());
+		context.put("error", message);
+		context.put("query", req.getParameter("query"));
+		templater.render(resp, "sparql.vm", context);
+
+	}
+
 }
