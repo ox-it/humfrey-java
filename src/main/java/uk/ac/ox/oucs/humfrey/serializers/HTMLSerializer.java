@@ -111,8 +111,10 @@ class HTMLSerializer extends AbstractSerializer {
 			resources.add(VelocityResource.create(subjects.next(), homeURIRegex));
 		
 		VelocityContext context = new VelocityContext();
+		resp.setContentType(getContentType());
 		context.put("model", model);
 		context.put("resources", resources);
+		context.put("query", req.getParameter("query"));
 		templater.render(resp, "sparql.vm", context);
 	}
 
