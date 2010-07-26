@@ -46,11 +46,7 @@ public class Query {
 		}
 		serverHostPart = buildURL(url.getProtocol(), url.getHost(), url.getPort(), "/").toString();
 		String path = url.getPath();
-		if (path.startsWith("/id/")) {
-			uri = Node.createURI(url.toString());
-			setFormat(negotiateContent(req.getHeader("Accept")));
-			
-		} else if (path.equals("/doc/")) {
+		if (path.equals("/doc/")) {
 			uri = Node.createURI(req.getParameter("uri"));
 			try {
 				url = new URL(req.getParameter("uri"));
@@ -93,6 +89,10 @@ public class Query {
 				else
 					throw new InvalidFormatException();
 			}
+		} else {
+			uri = Node.createURI(url.toString());
+			setFormat(negotiateContent(req.getHeader("Accept")));
+			
 		}
 
 		
