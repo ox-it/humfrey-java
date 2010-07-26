@@ -150,6 +150,11 @@
     <url-pattern>/about/</url-pattern>
   </servlet-mapping>
   
+  <servlet-mapping>
+    <servlet-name>document</servlet-name>
+    <url-pattern>/resources/</url-pattern>
+  </servlet-mapping>
+  
   <!--
   <servlet-mapping>
     <servlet-name>default</servlet-name>
