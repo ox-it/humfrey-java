@@ -10,23 +10,28 @@
 <>
 	a dctype:Text, foaf:Document ;
 	dcterms:format "text/prs.fallenstein.rst" ;
-	dcterms:title "Humfrey documentation index" ;
+	dcterms:title "About data.ox.ac.uk" ;
 	dcterms:contributor <http://alexdutton.co.uk/rdf#id> ;
 	dcterms:rightsHolder <http://oxpoints.oucs.ox.ac.uk/id/00000000> ;
 	dcterms:created "2010-07-26"^^xsd:date ;
 	dcterms:modified "2010-07-26"^^xsd:date ;
 	
 	rdf:value """
-Documentation
-=============
+About data.ox.ac.uk
+===================
 
-* `Contributing a dataset`_
-* `Performing SPARQL queries`_
-* `Frequently Asked Questions`_
+data.ox.ac.uk is a testing ground for the exposure of linked data at the University of Oxford.
 
-.. _Contributing a dataset: contributing/
-.. _Performing SPARQL queries: sparql/
-.. _Frequently Asked Questions: faq/
+It aims to contain datasets from across the University, primarily released under
+open data licenses. It is managed by the Open Data Special Interest Group at
+`Oxford University Computing Services <http://www.oucs.ox.ac.uk/>`_.
 
+Contact details
+---------------
+
+The University has a mailing list for the discussion of open data, which you can
+subscribe to by s blank e-mail to opendata-subscribe@maillist.ox.ac.uk .
+
+To discuss any matter off-list, you can contact the OUCS SIG at opendata@oucs.ox.ac.uk .
 
 """.

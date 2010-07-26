@@ -10,23 +10,21 @@
 <>
 	a dctype:Text, foaf:Document ;
 	dcterms:format "text/prs.fallenstein.rst" ;
-	dcterms:title "Humfrey documentation index" ;
+	dcterms:title "Frequently Asked Questions" ;
 	dcterms:contributor <http://alexdutton.co.uk/rdf#id> ;
 	dcterms:rightsHolder <http://oxpoints.oucs.ox.ac.uk/id/00000000> ;
 	dcterms:created "2010-07-26"^^xsd:date ;
 	dcterms:modified "2010-07-26"^^xsd:date ;
 	
 	rdf:value """
-Documentation
-=============
+Frequently Asked Questions
+==========================
 
-* `Contributing a dataset`_
-* `Performing SPARQL queries`_
-* `Frequently Asked Questions`_
-
-.. _Contributing a dataset: contributing/
-.. _Performing SPARQL queries: sparql/
-.. _Frequently Asked Questions: faq/
-
+What is linked data?
+    Linked data is data with links.
+What do you mean by open?
+    Well, my dear...
+How do I work out what I can do with a particular dataset?
+    Read the license!
 
 """.
