@@ -26,6 +26,8 @@ def main(dirname, graph_name, username, password):
 
     for root, dirs, files in os.walk(dirname):
         for filename in files:
+            if filename.startswith('.'):
+                continue
             filename = os.path.join(root, filename)
             uri = server_root + filename[len(dirname):]
             uri, format = uri.rsplit('.', 1)
