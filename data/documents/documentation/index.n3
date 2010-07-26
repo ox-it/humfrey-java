@@ -7,7 +7,7 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://localhost:8080/about/>
+<>
 	a dctype:Text, foaf:Document ;
 	dcterms:format "text/prs.fallenstein.rst" ;
 	dcterms:title "Humfrey documentation index" ;
