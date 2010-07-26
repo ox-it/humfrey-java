@@ -1,0 +1,33 @@
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dctype: <http://purl.org/dc/dcmitype/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://localhost:8080/about/>
+	a dctype:Text, foaf:Document ;
+	dcterms:format "text/prs.fallenstein.rst" ;
+	dcterms:title "Humfrey documentation index" ;
+	dcterms:contributor <http://alexdutton.co.uk/rdf#id> ;
+	dcterms:rightsHolder <http://oxpoints.oucs.ox.ac.uk/id/00000000> ;
+	dcterms:created "2010-07-26"^^xsd:date ;
+	dcterms:modified "2010-07-26"^^xsd:date ;
+	
+	rdf:value """
+Humfrey
+=======
+
+Resources:
+
+* foo
+* bar
+
+Hello
+-----
+
+This is **bold**.
+
+""".

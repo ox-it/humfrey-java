@@ -43,6 +43,10 @@
     <param-name>humfrey.homeURIRegex</param-name>
     <param-value>^http://([a-z\\-]+\\.)?data.ox.ac.uk/id/</param-value>
   </context-param>
+  <context-param>
+    <param-name>humfrey.documentationGraphName</param-name>
+    <param-value>^http://localhost:8080/graph/documentation</param-value>
+  </context-param>
   
   <servlet>
   	<servlet-name>index</servlet-name>
@@ -77,6 +81,12 @@
   <servlet>
   	<servlet-name>sparql</servlet-name>
   	<servlet-class>uk.ac.ox.oucs.humfrey.servlets.SparqlServlet</servlet-class>
+  	<load-on-startup>5</load-on-startup>
+  </servlet>
+  
+  <servlet>
+  	<servlet-name>document</servlet-name>
+  	<servlet-class>uk.ac.ox.oucs.humfrey.servlets.DocumentServlet</servlet-class>
   	<load-on-startup>5</load-on-startup>
   </servlet>
   
@@ -128,6 +138,16 @@
   <servlet-mapping>
     <servlet-name>sparql</servlet-name>
     <url-pattern>/sparql/</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>document</servlet-name>
+    <url-pattern>/documentation/*</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>document</servlet-name>
+    <url-pattern>/about/</url-pattern>
   </servlet-mapping>
   
   <!--

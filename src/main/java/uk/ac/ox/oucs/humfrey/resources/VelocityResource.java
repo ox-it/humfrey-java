@@ -173,6 +173,10 @@ public class VelocityResource implements Comparable<VelocityResource> {
 		return getLink();
 	}
 	
+	public Resource getResource() {
+		return resource;
+	}
+	
 	private static final Map<String,Class<? extends VelocityResource>> getClassMap() {
 		Map<String,Class<? extends VelocityResource>> map = new HashMap<String,Class<? extends VelocityResource>>();
 		map.put("v:Address", Address.class);

@@ -1,0 +1,20 @@
+#define( $title )$esc.html($resource.label)#end
+#define( $fullContent )
+
+$docTrans.transform($resource)
+
+#if(0)
+<footer>
+  <p class="formats">
+    Other formats: 
+    <ul>
+#foreach( $entry in $serializers.entrySet() )#if( $entry.key != "html")
+      <li><a href="$esc.xml($query.getDocURL($entry.key))">$esc.html($entry.value.name)</a></li>
+#end#end
+    </ul>
+  </p>
+</footer>
+#end
+
+#end
+#parse( "base.vm" )

@@ -18,9 +18,11 @@ import com.hp.hpl.jena.rdf.model.Literal;
 public class Templater {
 	private VelocityEngine ve;
 	private EscapeTool escapeTool;
+	private DocumentTransformer documentTransformer;
 	
 	public Templater(ServletContext servletContext) {
 		escapeTool = new HumfreyEscapeTool();
+		documentTransformer = new DocumentTransformer();
 		ve = new VelocityEngine();
 		try {
 			ve.setApplicationAttribute("javax.servlet.ServletContext", servletContext);
@@ -45,7 +47,9 @@ public class Templater {
 	
 	public void render(Writer writer, String templateName, VelocityContext context) {
 		Template template = getTemplate(templateName);
+		
 		context.put("esc", escapeTool);
+		context.put("docTrans", documentTransformer);
 		try {
 			template.merge(context, writer);
 		} catch (Exception e) {
@@ -74,4 +78,5 @@ public class Templater {
 		}
 		
 	}
+	
 }
