@@ -45,7 +45,7 @@
   </context-param>
   <context-param>
     <param-name>humfrey.documentationGraphName</param-name>
-    <param-value>^http://localhost:8080/graph/documentation</param-value>
+    <param-value>http://localhost:8080/graph/documentation</param-value>
   </context-param>
   
   <servlet>
