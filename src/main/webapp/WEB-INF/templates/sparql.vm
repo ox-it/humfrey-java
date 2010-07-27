@@ -47,6 +47,19 @@
 </section>
 #end
 
+#if($serializers)
+<footer class="formats">
+  <p>
+    Other formats: 
+    <ul>
+#foreach( $entry in $serializers.entrySet() )#if( $entry.key != "html")
+      <li><a href="/sparql/?format=$entry.key&amp;query=$esc.url($query)">$esc.html($entry.value.name)</a></li>
+#end#end
+    </ul>
+  </p>
+</footer>
+#end
+
 <section>
   <h2>Query</h2>
   <form method="get" action=".">

@@ -3,6 +3,7 @@ package uk.ac.ox.oucs.humfrey.serializers;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -71,6 +72,19 @@ public class SparqlXMLSerializer extends AbstractSerializer {
 		}
 		writer.write("  </results>\n");
 		writer.write("</sparql>\n");
+	}
+	
+	@Override
+	public boolean canSerializeResource(Resource resource, Set<Resource> types) {
+		return false;
+	}
+	@Override
+	public boolean canSerializeModel() {
+		return false;
+	}
+	@Override
+	public boolean canSerializeResultSet() {
+		return true;
 	}
 
 }

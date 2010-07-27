@@ -3,7 +3,7 @@ package uk.ac.ox.oucs.humfrey.serializers;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +27,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 class HTMLSerializer extends AbstractSerializer {
 	
 	Templater templater;
-	Map<String,AbstractSerializer> serializers;
+	Serializer serializer;
 	String homeURIRegex;
 	String[][] groups = {
 			{"Naming", "rdfs_label", "skos_prefLabel", "skos_altLabel", "dc_title"},
@@ -36,9 +36,9 @@ class HTMLSerializer extends AbstractSerializer {
 			{"Contact", "v_tel", "foaf_mbox", "foaf_phone"},
 	};
 	
-	public HTMLSerializer(Templater templater, Map<String,AbstractSerializer> serializers, String homeURIRegex) {
+	public HTMLSerializer(Templater templater, Serializer serializer, String homeURIRegex) {
 		this.templater = templater;
-		this.serializers = serializers;
+		this.serializer = serializer;
 		this.homeURIRegex = homeURIRegex;
 	}
 
@@ -62,8 +62,8 @@ class HTMLSerializer extends AbstractSerializer {
 		
 		context.put("resource", VelocityResource.create(resource, homeURIRegex, fullModel));
 		context.put("query", query);
-		context.put("serializers", serializers);
-		context.put("model", fullModel);
+		context.put("serializers", serializer.getResourceSerializers(resource));
+				context.put("model", fullModel);
 		
 		resp.setContentType(getContentType());
 		
@@ -97,6 +97,7 @@ class HTMLSerializer extends AbstractSerializer {
 		context.put("results", results);
 		context.put("bindings", bindings);
 		context.put("query", req.getParameter("query"));
+		context.put("serializers", serializer.getResultSetSerializers());
 		resp.setContentType(getContentType());
 		templater.render(resp, "sparql.vm", context);
 	}
@@ -115,6 +116,7 @@ class HTMLSerializer extends AbstractSerializer {
 		context.put("model", model);
 		context.put("resources", resources);
 		context.put("query", req.getParameter("query"));
+		context.put("serializers", serializer.getResourceListSerializers());
 		templater.render(resp, "sparql.vm", context);
 	}
 
@@ -129,8 +131,21 @@ class HTMLSerializer extends AbstractSerializer {
 		resp.setContentType(getContentType());
 		context.put("error", message);
 		context.put("query", req.getParameter("query"));
+		context.put("serializers", serializer.getResultSetSerializers());
 		templater.render(resp, "sparql.vm", context);
 
 	}
 
+	@Override
+	public boolean canSerializeResource(Resource resource, Set<Resource> types) {
+		return true;
+	}
+	@Override
+	public boolean canSerializeModel() {
+		return false;
+	}
+	@Override
+	public boolean canSerializeResultSet() {
+		return true;
+	}
 }

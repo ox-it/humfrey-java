@@ -1,0 +1,10 @@
+<footer class="formats">
+  <p>
+    Other formats: 
+    <ul>
+#foreach( $entry in $serializers.entrySet() )#if( $entry.key != "html")
+      <li><a href="$esc.xml($query.getDocURL($entry.key))">$esc.html($entry.value.name)</a></li>
+#end#end
+    </ul>
+  </p>
+</footer>

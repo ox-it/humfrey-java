@@ -22,6 +22,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.Templater;
+import uk.ac.ox.oucs.humfrey.Util;
 
 public class Serializer {
 	private Map<String,AbstractSerializer> serializers = new HashMap<String,AbstractSerializer>();
@@ -37,7 +38,7 @@ public class Serializer {
 		serializers.put("js", new JSONSerializer(true));
 		serializers.put("json", new JSONSerializer(false));
 		serializers.put("sxr", new SparqlXMLSerializer());
-		serializers.put("html", new HTMLSerializer(templater, serializers, homeURIRegex));
+		serializers.put("html", new HTMLSerializer(templater, this, homeURIRegex));
 	}
 	
 	public AbstractSerializer get(String format) {
@@ -111,4 +112,47 @@ public class Serializer {
 		}
 		return properties;
 	}
+	
+	public Map<String,AbstractSerializer> getResourceSerializers(Resource resource) {
+		Map<String,AbstractSerializer> matches = new HashMap<String,AbstractSerializer>();
+		Set<Resource> types = Util.getTypes(resource);
+		for (String format : serializers.keySet()) {
+			AbstractSerializer serializer = serializers.get(format);
+			if (serializer.canSerializeResource(resource, types))
+				matches.put(format, serializer);
+		}
+		return matches;
+	}
+	
+	public Map<String,AbstractSerializer> getResourceListSerializers() {
+		Map<String,AbstractSerializer> matches = new HashMap<String,AbstractSerializer>();
+		for (String format : serializers.keySet()) {
+			AbstractSerializer serializer = serializers.get(format);
+			if (serializer.canSerializeResourceList())
+				matches.put(format, serializer);
+		}
+		return matches;
+	}
+	
+	public Map<String,AbstractSerializer> getModelSerializers() {
+		Map<String,AbstractSerializer> matches = new HashMap<String,AbstractSerializer>();
+		for (String format : serializers.keySet()) {
+			AbstractSerializer serializer = serializers.get(format);
+			if (serializer.canSerializeModel())
+				matches.put(format, serializer);
+		}
+		return matches;
+	}
+	
+	public Map<String,AbstractSerializer> getResultSetSerializers() {
+		Map<String,AbstractSerializer> matches = new HashMap<String,AbstractSerializer>();
+		for (String format : serializers.keySet()) {
+			AbstractSerializer serializer = serializers.get(format);
+			if (serializer.canSerializeResultSet())
+				matches.put(format, serializer);
+		}
+		return matches;
+	}
+	
+	
 }

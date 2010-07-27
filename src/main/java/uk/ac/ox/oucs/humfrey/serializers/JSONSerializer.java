@@ -173,4 +173,17 @@ class JSONSerializer extends AbstractSerializer {
 	private String _(Resource res) {
 		return _(res.getURI());
 	}
+	
+	@Override
+	public boolean canSerializeResource(Resource resource, Set<Resource> types) {
+		return true;
+	}
+	@Override
+	public boolean canSerializeModel() {
+		return true;
+	}
+	@Override
+	public boolean canSerializeResultSet() {
+		return true;
+	}
 }

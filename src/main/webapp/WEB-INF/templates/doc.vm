@@ -3,15 +3,6 @@
 
 #parse( "describe.vm" )
 
-<footer>
-  <p class="formats">
-    Other formats: 
-    <ul>
-#foreach( $entry in $serializers.entrySet() )#if( $entry.key != "html")
-      <li><a href="$esc.xml($query.getDocURL($entry.key))">$esc.html($entry.value.name)</a></li>
-#end#end
-    </ul>
-  </p>
-</footer>
+#parse("serializers.vm")
 #end
 #parse( "base.vm" )
