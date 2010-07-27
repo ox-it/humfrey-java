@@ -37,7 +37,7 @@ public class Serializer {
 		serializers.put("ttl", new TurtleSerializer());
 		serializers.put("js", new JSONSerializer(true));
 		serializers.put("json", new JSONSerializer(false));
-		serializers.put("sxr", new SparqlXMLSerializer());
+		serializers.put("srx", new SparqlXMLSerializer());
 		serializers.put("html", new HTMLSerializer(templater, this, homeURIRegex));
 	}
 	
