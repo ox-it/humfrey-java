@@ -18,6 +18,13 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 
+/**
+ * Implements the SPARQL results XML syntax described at
+ * <http://www.w3.org/TR/rdf-sparql-XMLres/>.
+ * 
+ * @author Alexander Dutton <alexander.dutton@oucs.ox.ac.uk>
+ *
+ */
 public class SparqlXMLSerializer extends AbstractSerializer {
 
 	@Override

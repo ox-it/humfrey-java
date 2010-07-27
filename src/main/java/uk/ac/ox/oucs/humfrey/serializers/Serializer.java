@@ -24,6 +24,11 @@ import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.Templater;
 import uk.ac.ox.oucs.humfrey.Util;
 
+/**
+ * An interface to all available serializers.
+ * 
+ * @author Alexander Dutton <alexander.dutton@oucs.ox.ac.uk>
+ */
 public class Serializer {
 	private Map<String,AbstractSerializer> serializers = new HashMap<String,AbstractSerializer>();
 	Model fullModel;
