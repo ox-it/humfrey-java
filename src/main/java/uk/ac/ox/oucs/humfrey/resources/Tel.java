@@ -8,7 +8,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 
 public class Tel extends VelocityResource {
-	static String[] telTypes = {
+	static public String[] telTypes = {
 		"v:Pref", "v:Voice", "v:ISDN", "v:Modem", "v:Msg", "v:Pager", "v:BBS",
 		"v:Cell", "v:Video", "v:Fax", "v:Car", "v:PCS", "v:Home", "v:Work",
 		"v:Dom"};
