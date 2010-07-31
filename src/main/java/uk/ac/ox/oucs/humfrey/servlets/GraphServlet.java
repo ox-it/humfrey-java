@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
@@ -17,6 +18,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 
 import uk.ac.ox.oucs.humfrey.Namespaces;
 import uk.ac.ox.oucs.humfrey.Query;
@@ -29,6 +32,11 @@ import com.hp.hpl.jena.datatypes.BaseDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -136,6 +144,53 @@ public class GraphServlet extends ModelServlet {
 			resp.setStatus(404);
 
 	}
+	
+	@Override
+	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) {
+		Set<String> methods = new HashSet<String>();
+		Query query = getQuery(req, resp);
+		if (query == null)
+			return;
+
+		String accountPrefix = getServletContext().getInitParameter("humfrey.accountPrefix");
+		Set<Property> permissions = getPermissions(accountPrefix, query.getUsername(), query.getURI());
+		
+		methods.add("OPTIONS");
+		
+		if (namedGraphSet.containsGraph(query.getNode())) {
+			methods.add("HEAD"); methods.add("GET");
+		}
+		
+		if (permissions.contains(PERM.mayAdminister) || permissions.contains(PERM.mayUpdate)) {
+			methods.add("PUT"); methods.add("INTERSECTION"); 
+			methods.add("UNION"); methods.add("SUBTRACT");
+			methods.add("DELETE");
+		}
+		if (permissions.contains(PERM.mayAugment))
+			methods.add("UNION");
+		if (permissions.contains(PERM.mayDelete))
+			methods.add("DELETE");
+
+		resp.addHeader("Allow", StringUtils.join(methods, ", "));
+		
+		Map<String,AbstractSerializer> serializers = serializer.getSerializers();
+		
+		if (query.negotiatedAccept()) {
+			Set<String> contentTypes = new HashSet<String>();
+			for (AbstractSerializer serializer : serializers.values())
+				if (serializer.canSerializeModel())
+					contentTypes.add(serializer.getContentType());
+			resp.addHeader("X-Allow-Accept", StringUtils.join(contentTypes, ", "));
+		}
+		if (query.negotiatedContentType()) {
+			Set<String> contentTypes = new HashSet<String>();
+			for (AbstractSerializer serializer : serializers.values())
+				if (serializer instanceof JenaSerializer)
+					contentTypes.add(serializer.getContentType());
+			resp.addHeader("X-Allow-Content-Type", StringUtils.join(contentTypes, ", "));
+		}
+		resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+	}
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp)
@@ -233,6 +288,40 @@ public class GraphServlet extends ModelServlet {
 			}
 		}
 		return false;		
+	}
+	
+	static private Set<Property> getPermissions(String userPrefix, String username, String uri) {
+		Set<Property> permissions = new HashSet<Property>();
+		Resource resource = configModel.createResource(uri);
+		Resource user;
+		if (username == null)
+			user = PERM.Public;
+		else
+			user = configModel.createResource(userPrefix + username);
+		
+		StmtIterator stmts = configModel.listStatements(user, null, resource);
+		while (stmts.hasNext())
+			permissions.add(stmts.next().getPredicate());
+		
+		String queryString = "";
+		queryString += "PREFIX perm: <http://vocab.ox.ac.uk/perm#>\n";
+		queryString += "SELECT ?perm ?regex WHERE {\n";
+		queryString += "  <"+user.getURI()+"> ?perm ?rm .";
+		queryString += "  ?rm a perm:ResourceMatch ;";
+		queryString += "      perm:matchExpression ?regex }";
+		
+		com.hp.hpl.jena.query.Query query = QueryFactory.create(queryString);
+		QueryExecution qexec = QueryExecutionFactory.create(query, configModel);
+		ResultSet results = qexec.execSelect();
+		while (results.hasNext()) {
+			QuerySolution sol = results.next();
+			if (uri.matches(((Literal) sol.get("regex")).getLexicalForm()))
+				permissions.add(configModel.createProperty(((Resource) sol.get("perm")).getURI()));
+		}
+		
+		if (username != null)
+			permissions.addAll(getPermissions(userPrefix, null, uri));
+		return permissions;
 	}
 
 	static private boolean hasPermission(String userPrefix, String username, String uri, Property[] permissions) {

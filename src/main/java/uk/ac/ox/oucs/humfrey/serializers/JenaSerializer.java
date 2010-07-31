@@ -27,4 +27,9 @@ public abstract class JenaSerializer extends AbstractSerializer {
 	public boolean canSerializeResource(Resource resource, Set<Resource> types) {
 		return true;
 	}
+	
+	@Override
+	public boolean canSerializeModel() {
+		return true;
+	}
 }
