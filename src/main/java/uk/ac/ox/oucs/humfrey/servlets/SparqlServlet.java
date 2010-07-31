@@ -52,7 +52,7 @@ public class SparqlServlet extends ModelServlet {
 			}
 
 		} else {
-			if (!query.getFormat().equals("html")) {
+			if (!query.getAccept().equals("html")) {
 				resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}

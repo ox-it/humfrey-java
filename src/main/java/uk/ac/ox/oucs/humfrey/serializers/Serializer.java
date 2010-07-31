@@ -63,7 +63,7 @@ public class Serializer {
 	}
 	
 	public void serializeModel(Model model, Query query, HttpServletRequest req, HttpServletResponse resp) {
-		AbstractSerializer serializer = serializers.get(query.getFormat());
+		AbstractSerializer serializer = serializers.get(query.getAccept());
 		try {
 			serializer.serializeModel(model, fullModel, query, req, resp);
 		} catch (IOException e) {
@@ -74,7 +74,7 @@ public class Serializer {
 	}
 	
 	public void serializeResultSet(ResultSet resultset, Query query, HttpServletRequest req, HttpServletResponse resp) {
-		AbstractSerializer serializer = serializers.get(query.getFormat());
+		AbstractSerializer serializer = serializers.get(query.getAccept());
 		try {
 			serializer.serializeResultSet(resultset, query, req, resp);
 		} catch (IOException e) {
@@ -85,7 +85,7 @@ public class Serializer {
 	}
 	
 	public void serializeSparqlError(String message, Query query, HttpServletRequest req, HttpServletResponse resp) {
-		AbstractSerializer serializer = serializers.get(query.getFormat());
+		AbstractSerializer serializer = serializers.get(query.getAccept());
 		try {
 			serializer.serializeSparqlError(message, query, req, resp);
 		} catch (IOException e) {
@@ -96,7 +96,7 @@ public class Serializer {
 	}
 	
 	public void serializeResources(Model model, Query query, HttpServletRequest req, HttpServletResponse resp) {
-		AbstractSerializer serializer = serializers.get(query.getFormat());
+		AbstractSerializer serializer = serializers.get(query.getAccept());
 		try {
 			serializer.serializeResources(model, fullModel, query, req, resp);
 		} catch (IOException e) {

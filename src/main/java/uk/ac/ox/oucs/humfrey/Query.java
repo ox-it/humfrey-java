@@ -24,7 +24,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 public class Query {
 	Node uri = null;
 	URL url = null;
-	String format = null;
+	String accept = null;
 	String serialization = null;
 	String contentType = null;
 	String serverHostPart = null;
@@ -56,10 +56,10 @@ public class Query {
 			String format = req.getParameter("format");
 			foreignResource = true;
 			if (format == null)
-				setFormat(negotiateContent(req.getHeader("Accept")));
+				setAccept(negotiateContent(req.getHeader("Accept")));
 			else {
 				if (serializer.hasFormat(format))
-					setFormat(format);
+					setAccept(format);
 				else
 					throw new InvalidFormatException();
 			}
@@ -70,28 +70,28 @@ public class Query {
 				path = "/id/" + path.substring(5);
 			for (String format : serializer.getFormats()) {
 				if (path.endsWith("."+format)) {
-					setFormat(format);
+					setAccept(format);
 					path = path.substring(0, path.lastIndexOf('.'));
 				}
 			}
-			if (format == null)
-				setFormat(negotiateContent(req.getHeader("Accept")));
+			if (accept == null)
+				setAccept(negotiateContent(req.getHeader("Accept")));
 			url = buildURL(url.getProtocol(), url.getHost(), url.getPort(), path);
 			uri = Node.createURI(url.toString());
 		} else if (path.equals("/sparql/")) {
 			String format = req.getParameter("format");
 			foreignResource = true;
 			if (format == null)
-				setFormat(negotiateContent(req.getHeader("Accept")));
+				setAccept(negotiateContent(req.getHeader("Accept")));
 			else {
 				if (serializer.hasFormat(format))
-					setFormat(format);
+					setAccept(format);
 				else
 					throw new InvalidFormatException();
 			}
 		} else {
 			uri = Node.createURI(url.toString());
-			setFormat(negotiateContent(req.getHeader("Accept")));
+			setAccept(negotiateContent(req.getHeader("Accept")));
 			
 		}
 
@@ -149,8 +149,8 @@ public class Query {
 		}
 	}
 	
-	private void setFormat(String format) {
-		this.format = format;
+	private void setAccept(String format) {
+		this.accept = format;
 	}
 	
 	public String getDocURL() {
@@ -200,8 +200,8 @@ public class Query {
 	public String getURI() {
 		return url.toString();
 	}
-	public String getFormat() {
-		return format;
+	public String getAccept() {
+		return accept;
 	}
 	public String getContentType() {
 		return contentType;

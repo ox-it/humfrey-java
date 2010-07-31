@@ -29,7 +29,7 @@ public class DocumentServlet extends DocServlet {
 		
 		Model model = ModelFactory.createModelForGraph(namedGraphSet.getGraph(documentationGraphName));
 		Resource resource = model.createResource(query.getURI());
-		if (!query.getFormat().equals("html") || !model.containsResource(resource) || !documentTransformer.isTransformable(resource)) {
+		if (!query.getAccept().equals("html") || !model.containsResource(resource) || !documentTransformer.isTransformable(resource)) {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}

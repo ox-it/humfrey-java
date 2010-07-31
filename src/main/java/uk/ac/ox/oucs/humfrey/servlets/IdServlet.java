@@ -28,7 +28,7 @@ public class IdServlet extends ModelServlet {
 		
 		if (containsQuerySubject(model, query)) {
 			resp.setStatus(HttpServletResponse.SC_SEE_OTHER);
-			URL location = Query.buildURL(url.getProtocol(), url.getHost(), url.getPort(), "/doc/" + url.getPath().substring(4) + "." + query.getFormat());
+			URL location = Query.buildURL(url.getProtocol(), url.getHost(), url.getPort(), "/doc/" + url.getPath().substring(4) + "." + query.getAccept());
 			resp.addHeader("Location", location.toString());
 		} else {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
