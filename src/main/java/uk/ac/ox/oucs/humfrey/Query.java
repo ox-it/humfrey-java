@@ -71,11 +71,14 @@ public class Query {
 			for (String format : serializer.getFormats()) {
 				if (path.endsWith("."+format)) {
 					setAccept(format);
+					setContentType(format);
 					path = path.substring(0, path.lastIndexOf('.'));
 				}
 			}
 			if (accept == null)
 				setAccept(negotiateContent(req.getHeader("Accept")));
+			if (contentType == null)
+				setContentType(negotiateContent(req.getHeader("Content-Type")));
 			url = buildURL(url.getProtocol(), url.getHost(), url.getPort(), path);
 			uri = Node.createURI(url.toString());
 		} else if (path.equals("/sparql/")) {
@@ -151,6 +154,9 @@ public class Query {
 	
 	private void setAccept(String format) {
 		this.accept = format;
+	}
+	private void setContentType(String format) {
+		this.contentType = format;
 	}
 	
 	public String getDocURL() {
