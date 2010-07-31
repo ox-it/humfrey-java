@@ -51,9 +51,12 @@ public class Query {
 		serverHostPart = buildURL(url.getProtocol(), url.getHost(), url.getPort(), "/").toString();
 		String path = url.getPath();
 		if (path.equals("/doc/")) {
-			uri = Node.createURI(req.getParameter("uri"));
+			String uriString = req.getParameter("uri");
+			if (uriString == null)
+				throw new UnknownQueryException();
+			uri = Node.createURI(uriString);
 			try {
-				url = new URL(req.getParameter("uri"));
+				url = new URL(uriString);
 			} catch (MalformedURLException e) {
 				throw new RuntimeException(e);
 			}
