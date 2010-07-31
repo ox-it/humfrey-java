@@ -25,7 +25,7 @@ public class Query {
 	Node uri = null;
 	URL url = null;
 	String accept = null;
-	String serialization = null;
+
 	String contentType = null;
 	String serverHostPart = null;
 	String username = null;
@@ -206,10 +206,6 @@ public class Query {
 	public String getContentType() {
 		return contentType;
 	}
-	public String getSerialization() {
-		return serialization;
-	}
-
 	public boolean isAuthenticated() {
 		return username != null;
 	}
