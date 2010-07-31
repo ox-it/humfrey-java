@@ -105,7 +105,10 @@ public class Query {
 			
 		}
 
-		
+		performAuthentication(accountPrefix, configModel, req);
+	}
+	
+	private void performAuthentication(String accountPrefix, Model configModel, HttpServletRequest req) throws InvalidCredentialsException {	
 		String authorization = req.getHeader("Authorization");
 		if (authorization != null && authorization.startsWith("Basic ")) {
 			authorization = authorization.substring(6);
