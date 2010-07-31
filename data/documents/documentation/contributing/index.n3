@@ -115,5 +115,27 @@ More information can likely be gleaned from:
 * the University's `open data mailing list <mailto:opendata@oucs.ox.ac.uk>`_ (send a blank e-mail to opendata-subscribe@maillist.ox.ac.uk first to subscribe)
 * the Open Definition `Guide to Open Data Licensing <http://www.opendefinition.org/guide/data/>`_
 
+Uploading data
+--------------
+
+Data uploaded to *data.ox.ac.uk* is stored in named graphs, identified by URIs. Our example dataset may be stored in ``http://data.ox.ac.uk/graph/oxford-college-shields``. To upload data, one performs an HTTP request with a suitable method and ``Authorization`` header to that URI. **data.ox.ac.uk** supports the ``GET``, ``PUT`` and ``DELETE`` methods from the HTTP specification. It also extends the specification with ``UNION``, ``INTERSECTION`` and ``SUBTRACT`` methods.
+
+A ``GET`` request will return the entire graph serialized `as per the extension or Accept header`__. A ``DELETE`` request will remove the graph and its contents, returning a ``204 No Content`` response on success.
+
+__ ../serializations/
+.. |Accept| replace: ``Accept``
+
+The remaining methods (``PUT``, ``UNION``, ``INTERSECTION``, and ``SUBTRACT``) will all create a graph if it doesn't already exist. The request body should contain a set of RDF statements serialized as per the extension or ``Content-Type`` header. ``PUT`` will replace the contents of the graph with those provided in the request body. ``UNION``, ``INTERSECTION`` and ``SUBTRACT`` perform the respective `set operations <http://en.wikipedia.org/wiki/Set_%28mathematics%29#Basic_operations>`_ upon the graph. Each of these will return a ``204 No Content`` on success.
+
+It is possible that in future the server will return a ``202 Accepted`` response to signify that the update will be placed in a queue to be dealt with asynchronously. This will cover the case where the quantity of data uploaded cannot be dealt with before the request is timed out by the client.
+
+
+
+Acquiring an account
+~~~~~~~~~~~~~~~~~~~~
+
+
+
+To acquire an account to upload data (including your dataset definition) to *data.ox.ac.uk* you should contact opendata@oucs.ox.ac.uk. The *data.ox.ac.uk* will then assign one or more 
 
 """.
