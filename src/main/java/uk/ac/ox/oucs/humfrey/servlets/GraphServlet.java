@@ -150,7 +150,7 @@ public class GraphServlet extends ModelServlet {
 		
 		Node node = query.getNode();
 		
-		AbstractSerializer as = serializer.get(query.getAccept());
+		AbstractSerializer as = serializer.get(query.getContentType());
 		if (!(as instanceof JenaSerializer)) {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return;
