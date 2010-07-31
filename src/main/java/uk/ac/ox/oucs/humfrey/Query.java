@@ -24,9 +24,13 @@ import com.hp.hpl.jena.rdf.model.Statement;
 public class Query {
 	Node uri = null;
 	URL url = null;
+	
 	String accept = null;
+	boolean negotiatedAccept = true;
 
 	String contentType = null;
+	boolean negotiatedContentType = true;
+	
 	String serverHostPart = null;
 	String username = null;
 	Resource user = null;
@@ -58,9 +62,10 @@ public class Query {
 			if (format == null)
 				setAccept(negotiateContent(req.getHeader("Accept")));
 			else {
-				if (serializer.hasFormat(format))
+				if (serializer.hasFormat(format)) {
 					setAccept(format);
-				else
+					negotiatedAccept = false;
+				} else
 					throw new InvalidFormatException();
 			}
 		} else if (path.startsWith("/graph/")
@@ -72,6 +77,7 @@ public class Query {
 				if (path.endsWith("."+format)) {
 					setAccept(format);
 					setContentType(format);
+					negotiatedAccept = negotiatedContentType = false;
 					path = path.substring(0, path.lastIndexOf('.'));
 				}
 			}
@@ -87,9 +93,10 @@ public class Query {
 			if (format == null)
 				setAccept(negotiateContent(req.getHeader("Accept")));
 			else {
-				if (serializer.hasFormat(format))
+				if (serializer.hasFormat(format)) {
 					setAccept(format);
-				else
+					negotiatedAccept = false;
+				} else
 					throw new InvalidFormatException();
 			}
 		} else {
