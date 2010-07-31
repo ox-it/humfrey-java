@@ -53,25 +53,25 @@ public class GraphServlet extends ModelServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	throws ServletException, IOException {
 		Query query = getQuery(req, resp);
 		if (query == null)
 			return;
 		Node uri = query.getNode();
-		
+
 		if (!namedGraphSet.containsGraph(uri)) {
 			resp.setStatus(404);
 			return;
 		}
-		
+
 		Graph graph = namedGraphSet.getGraph(uri);
 		serializeGraph(graph, query, req, resp);
-		
+
 	}
 
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	throws ServletException, IOException {
 		Property[] permissions = {PERM.mayAdminister, PERM.mayUpdate};
 		updateGraph(req, resp, permissions, new GraphUpdater() {
 			public void updateGraph(NamedGraphSet namedGraphSet, Graph graph, Node node) {
@@ -80,9 +80,9 @@ public class GraphServlet extends ModelServlet {
 			}
 		});
 	}
-	
+
 	protected void doUnion(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	throws ServletException, IOException {
 		Property[] permissions = {PERM.mayAdminister, PERM.mayUpdate, PERM.mayAugment};
 		updateGraph(req, resp, permissions, new GraphUpdater(){
 			public void updateGraph(NamedGraphSet namedGraphSet, Graph graph, Node node) {
@@ -134,12 +134,12 @@ public class GraphServlet extends ModelServlet {
 			resp.setStatus(200);
 		} else
 			resp.setStatus(404);
-		
+
 	}
 
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	throws ServletException, IOException {
 		if (req.getMethod().equals("UNION"))
 			doUnion(req, resp);
 		else if (req.getMethod().equals("INTERSECTION"))
@@ -149,68 +149,68 @@ public class GraphServlet extends ModelServlet {
 		else
 			super.service(req, resp);
 	}
-	
+
 	private void updateGraph(HttpServletRequest req, HttpServletResponse resp, Property[] permissions,
 			GraphUpdater graphUpdater) throws ServletException, IOException {
 		Query query = getQuery(req, resp);
 		ServletContext context = getServletContext();
 		if (query == null)
 			return;
-		
+
 		if (performPermissionsCheck(context, query, resp, permissions))
 			return;
-		
+
 		Node node = query.getNode();
-		
+
 		AbstractSerializer as = serializer.get(query.getContentType());
 		if (as == null || !(as instanceof JenaSerializer)) {
 			resp.setStatus(query.negotiatedContentType() ? HttpServletResponse.SC_BAD_REQUEST : HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
-		
+
 		Model model = ModelFactory.createDefaultModel();
 		model.read(req.getInputStream(), query.getURI(), ((JenaSerializer) as).getSerialization());
-		
+
 		Set<Triple> before;
 		if (namedGraphSet.containsGraph(node)) {
 			Graph graph = namedGraphSet.getGraph(node);
 			before = graph.find(null, null, null).toSet();
 		} else
 			before = new HashSet<Triple>();
-		
+
 		graphUpdater.updateGraph(namedGraphSet, model.getGraph(), node);
-		
+
 		Set<Triple> after = namedGraphSet.getGraph(node).find(null, null, null).toSet();
-		
+
 		Set<Triple> intersection = new HashSet<Triple>(before);
 		intersection.retainAll(after);
-		
+
 		before.removeAll(intersection); // All those removed
 		after.removeAll(intersection); // All those added
 
 		Model changesetModel = ModelFactory.createDefaultModel();
-		
+
 		Resource changeset = changesetModel.createResource();
 		Literal date = changesetModel.createTypedLiteral(
 				dateFormat.format(new Date()), new BaseDatatype(XSD.date.getURI()));
-		
+
 		changeset.addProperty(Namespaces.rdf.p("type"),
-							  CS.ChangeSet)
-				 .addProperty(Namespaces.dc.p("date"),
-						 	  date)
-				 .addProperty(CS.subjectOfChange,
-						 	  changesetModel.createResource(query.getURI()))
-				 .addProperty(DC.creator,
-						      query.getUser());
-		
+				CS.ChangeSet)
+				.addProperty(Namespaces.dc.p("date"),
+						date)
+						.addProperty(CS.subjectOfChange,
+								changesetModel.createResource(query.getURI()))
+								.addProperty(DC.creator,
+										query.getUser());
+
 		for (Triple triple : before)
 			changeset.addProperty(Namespaces.cs.p("removal"),
-								  changesetModel.asStatement(triple).createReifiedStatement());
+					changesetModel.asStatement(triple).createReifiedStatement());
 		for (Triple triple : after)
 			changeset.addProperty(Namespaces.cs.p("addition"),
-								  changesetModel.asStatement(triple).createReifiedStatement());
+					changesetModel.asStatement(triple).createReifiedStatement());
 
-		
+
 		String filename = query.getURL().getPath() + "/" + date.getLexicalForm() + ".n3";
 		File file = new File(logDirectory, filename);
 		file.getParentFile().mkdirs();
@@ -220,7 +220,7 @@ public class GraphServlet extends ModelServlet {
 
 		resp.setStatus(200);
 	}
-	
+
 	static private boolean performPermissionsCheck(ServletContext context, Query query, HttpServletResponse resp, Property[] permissions) {
 		if (!hasPermission(context.getInitParameter("humfrey.accountPrefix"), query.getUsername(), query.getURI(), permissions)) {
 			if (query.isAuthenticated()) {
@@ -234,23 +234,23 @@ public class GraphServlet extends ModelServlet {
 		}
 		return false;		
 	}
-	
+
 	static private boolean hasPermission(String userPrefix, String username, String uri, Property[] permissions) {
 		Set<Property> permissionSet = new HashSet<Property>();
 		Resource resource = configModel.createResource(uri);
 		Resource user;
-		
+
 		if (username == null)
 			user = PERM.Public;
 		else
 			user = configModel.createResource(userPrefix + username);
-		
+
 		for (Property permission : permissions) {
 			if (configModel.contains(user, permission, resource))
 				return true;
 			permissionSet.add(permission);
 		}
-		
+
 		StmtIterator stmts = user.listProperties();
 		while (stmts.hasNext()) {
 			Statement stmt = stmts.next();
@@ -259,23 +259,23 @@ public class GraphServlet extends ModelServlet {
 			RDFNode resourceMatch = stmt.getObject();
 			if (!(resourceMatch.isResource() && configModel.contains((Resource) resourceMatch, RDF.type, PERM.ResourceMatch)))
 				continue;
-			
+
 			RDFNode matchRegex = ((Resource) resourceMatch).getProperty(PERM.matchExpression).getObject();
 			if (matchRegex == null || !matchRegex.isLiteral())
 				continue;
-			
+
 			try {
 				if (uri.matches(((Literal) matchRegex).getString()))
 					return true;
 			} catch (PatternSyntaxException e) {}
 		}
-		
+
 		if (username != null)
 			return hasPermission(userPrefix, null, uri, permissions);
 		else
 			return false;
 	}
-	
+
 	interface GraphUpdater {
 		void updateGraph(NamedGraphSet namedGraphSet, Graph graph, Node node);
 	}
@@ -283,7 +283,7 @@ public class GraphServlet extends ModelServlet {
 	@Override
 	public void init() throws ServletException {
 		super.init();
-		
+
 		ServletContext context = getServletContext();
 		logDirectory = new File(context.getInitParameter("humfrey.logDirectory"));
 	}
