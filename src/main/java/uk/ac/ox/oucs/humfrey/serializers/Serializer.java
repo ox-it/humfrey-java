@@ -66,10 +66,11 @@ public class Serializer {
 		AbstractSerializer serializer = serializers.get(query.getAccept());
 		try {
 			serializer.serializeModel(model, fullModel, query, req, resp);
+			resp.setStatus(HttpServletResponse.SC_OK);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} catch (NotImplementedException e) {
-			resp.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+			resp.setStatus(query.negotiatedAccept() ? HttpServletResponse.SC_NOT_ACCEPTABLE : HttpServletResponse.SC_NOT_FOUND);
 		}
 	}
 	
@@ -77,10 +78,11 @@ public class Serializer {
 		AbstractSerializer serializer = serializers.get(query.getAccept());
 		try {
 			serializer.serializeResultSet(resultset, query, req, resp);
+			resp.setStatus(HttpServletResponse.SC_OK);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} catch (NotImplementedException e) {
-			resp.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+			resp.setStatus(query.negotiatedAccept() ? HttpServletResponse.SC_NOT_ACCEPTABLE : HttpServletResponse.SC_NOT_FOUND);
 		}
 	}
 	
@@ -88,10 +90,11 @@ public class Serializer {
 		AbstractSerializer serializer = serializers.get(query.getAccept());
 		try {
 			serializer.serializeSparqlError(message, query, req, resp);
+			resp.setStatus(HttpServletResponse.SC_OK);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} catch (NotImplementedException e) {
-			resp.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+			resp.setStatus(query.negotiatedAccept() ? HttpServletResponse.SC_NOT_ACCEPTABLE : HttpServletResponse.SC_NOT_FOUND);
 		}
 	}
 	
@@ -99,10 +102,11 @@ public class Serializer {
 		AbstractSerializer serializer = serializers.get(query.getAccept());
 		try {
 			serializer.serializeResources(model, fullModel, query, req, resp);
+			resp.setStatus(HttpServletResponse.SC_OK);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} catch (NotImplementedException e) {
-			resp.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+			resp.setStatus(query.negotiatedAccept() ? HttpServletResponse.SC_NOT_ACCEPTABLE : HttpServletResponse.SC_NOT_FOUND);
 		}
 	}
 	

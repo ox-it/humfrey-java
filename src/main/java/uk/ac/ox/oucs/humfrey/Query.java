@@ -84,7 +84,7 @@ public class Query {
 			if (accept == null)
 				setAccept(negotiateContent(req.getHeader("Accept")));
 			if (contentType == null)
-				setContentType(negotiateContent(req.getHeader("Content-Type")));
+				setContentType(negotiateContent(req.getHeader("Content-Type"), "rdf", null));
 			url = buildURL(url.getProtocol(), url.getHost(), url.getPort(), path);
 			uri = Node.createURI(url.toString());
 		} else if (path.equals("/sparql/")) {
@@ -188,8 +188,12 @@ public class Query {
 	}
 	
 	private String negotiateContent(String header) {
+		return negotiateContent(header, "rdf", "html");
+	}
+	
+	private String negotiateContent(String header, String defaultIfMissing, String defaultIfNotFound) {
 		if (header == null)
-			return "rdf";
+			return defaultIfMissing;
 		String[] mimeTypes = header.split(",");
 		for (String mimeType : mimeTypes) {
 			mimeType = mimeType.split(";")[0].trim();
@@ -208,7 +212,7 @@ public class Query {
 			else if (mimeType.equals("application/javascript"))
 				return "js";
 		}
-		return "html";
+		return defaultIfNotFound;
 	}
 	
 	public Node getNode() {
@@ -223,8 +227,14 @@ public class Query {
 	public String getAccept() {
 		return accept;
 	}
+	public boolean negotiatedAccept() {
+		return negotiatedAccept;
+	}
 	public String getContentType() {
 		return contentType;
+	}
+	public boolean negotiatedContentType() {
+		return negotiatedContentType;
 	}
 	public boolean isAuthenticated() {
 		return username != null;

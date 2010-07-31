@@ -66,7 +66,6 @@ public class GraphServlet extends ModelServlet {
 		
 		Graph graph = namedGraphSet.getGraph(uri);
 		serializeGraph(graph, query, req, resp);
-		resp.setStatus(200);
 		
 	}
 
@@ -151,8 +150,8 @@ public class GraphServlet extends ModelServlet {
 		Node node = query.getNode();
 		
 		AbstractSerializer as = serializer.get(query.getContentType());
-		if (!(as instanceof JenaSerializer)) {
-			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		if (as == null || !(as instanceof JenaSerializer)) {
+			resp.setStatus(query.negotiatedContentType() ? HttpServletResponse.SC_BAD_REQUEST : HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
 		
