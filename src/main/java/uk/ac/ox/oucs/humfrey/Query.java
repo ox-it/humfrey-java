@@ -187,6 +187,10 @@ public class Query {
 				return "n3";
 			else if (mimeType.equals("application/json"))
 				return "json";
+			else if (mimeType.equals("text/javascript"))
+				return "js";
+			else if (mimeType.equals("application/javascript"))
+				return "js";
 		}
 		return "html";
 	}
