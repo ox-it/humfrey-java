@@ -1,0 +1,119 @@
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dctype: <http://purl.org/dc/dcmitype/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<>
+	a dctype:Text, foaf:Document ;
+	dcterms:format "text/prs.fallenstein.rst" ;
+	dcterms:title "Contributing a dataset" ;
+	dcterms:contributor <http://alexdutton.co.uk/rdf#id> ;
+	dcterms:rightsHolder <http://oxpoints.oucs.ox.ac.uk/id/00000000> ;
+	dcterms:created "2010-07-29"^^xsd:date ;
+	dcterms:modified "2010-07-29"^^xsd:date ;
+	
+	rdf:value """
+Contributing a dataset
+======================
+
+There are a few options for contributing a dataset to *data.ox.ac.uk*. Datasets don't necessarily have to be RDF, and even if they are, they don't need to be hosted on *data.ox.ac.uk*.
+
+In order to contribute a dataset, the following things need to be in order:
+
+* A set of descriptive metadata about the dataset.
+* A license should be determined, under which the data are distributed.
+* A person or group needs to be identified to be responsible for the dataset.
+* A schedule for releasing updates to the dataset (including 'ad hoc').
+* Links to any 'distributions' of the data.
+* An account set up with the *data.ox.ac.uk* team.
+* If applicable, data available as *open linked data* in some RDF serialisation.
+
+We shall consider each of these in turn.
+
+Dataset metadata
+----------------
+
+In the very least, each dataset requires a set of metadata be uploaded so that users can discover it and work out how to download the data. These metadata should also include details of the license it is distributed under, when it was last updated, and provenance information.
+
+Datasets should be described using the `dcat <http://www.w3.org/egov/wiki/Data_Catalog_Vocabulary/Vocabulary_Reference>`_ ontology. Where a dataset is primarily hosted by *data.ox.ac.uk*, it should have a URI beginning with ``http://data.ox.ac.uk/id/dataset/``. For example, a dataset containing information about college shields might have the URI ``http://data.ox.ac.uk/id/dataset/oxford-college-shields``. A *data.ox.ac.uk* URI may also be used where the dataset is located elsewhere but not made available in linked data form.
+
+Specifically, a dataset metadata entry should contain the following:
+
+``dcterms title``
+    The name of the dataset.
+``dcterms description``
+    A short plain text description of the dataset.
+``dcterms license``
+    A dctype:LicenseDocument under which the dataset is made available. See the next section for further details on specifying a license.
+``dcterms publisher``
+    The unit or group publishing the dataset. The object of this statement should be a resource. Where the publisher is a unit (e.g. a department or college) it is prefered that you use an `OxPoints <http://data.ox.ac.uk/id/dataset/oxpoints>`_ URI.
+``dcterms contributor``
+    The people, groups, or units who have at some point contributed to the dataset.
+``dcterms creator``
+    The people, group or unit who were responsible for initially creating the dataset.
+``dcterms rightsHolder``
+    The person or organisation holding intellectual property rights in the dataset. For departments of the University this should be `The University of Oxford <http://oxpoints.oucs.ox.ac.uk/id/00000000>`_. For colleges or other separate legal entities, this should either be an OxPoints URI where one exists, or some other canonical URI.
+``dcterms created``
+    An ``xsd:date`` or ``xsd:dateTime`` specifying when the dataset was created.
+``dcterms modified``
+    An ``xsd:date`` or ``xsd:dateTime`` specifying when the dataset was last updated.
+``dcterms accrualPeriodicity``
+    A ``dctype:Frequency`` specifying how often one might expect the dataset to be updated.
+
+.. |c| unicode:: 0x3A
+
+Example
+~~~~~~~
+
+:: 
+
+   @prefix dcterms: <http://purl.org/dc/terms/> .
+
+   <http://data.ox.ac.uk/id/dataset/oxford-college-shields>
+       a dcat:Dataset ;
+       dcterms:title "Information about the shields of Oxford colleges"@en-GB ;
+       dcterms:description "A dataset containing the provenance, colours and descriptions of Oxford shields."@en-GB ;
+       dcterms:license <http://creativecommons.org/publicdomain/zero/1.0/> ;
+       dcterms:publisher [
+           a foaf:Organization ;
+           foaf:name "The Oxford Shield Ontology Society" ;
+           foaf:mbox <mailto:dataset@osos.example> ] ;
+       dcterms:creator [
+           a foaf:Person ;
+           foaf:name "Archduke Walsh of Wellingborough" ] ;
+       dcterms:rightsHolder <http://oxpoints.oucs.ox.ac.uk/id/00000000> ;
+       dcterms:created "1912-01-06"^^xsd:date ;
+       dcterms:modified "2010-02-12T14:23:45"^^xsd:dateTime ;
+       dcterms:accrualPeriodicity [
+           a dctype:Frequency ;
+           rdf:value "ad hoc" ;
+           dcterms:decsription "Updates happen a short while after the Society notice the dataset is lagging reality."@en-GB ] .
+
+The above dataset doesn't exist (nor do certain entities mentioned in its description). Anyone wishing to create and curate such a dataset is more than welcome to do so.
+
+Licensing
+---------
+
+When licensing your dataset, it is important to consider the following:
+
+* Whether the University holds an interest in the intellectual property rights associated with it
+* What uses you might expect or desire others to have for the data
+* Whether you are licensing data, content or code
+
+It should be noted that the default position for works owned by the University is that the University retains all rights. Licensing data can only be performed by someone with `authority to bind the University <http://www.admin.ox.ac.uk/statutes/790-121.shtml>`_.
+
+Licenses should be referred to using the canonical URIs given to them by the author of the license. We have collated a set of URIs and metadata in the `licenses dataset <http://data.ox.ac.uk/id/dataset/licenses>`_. If the dataset doesn't contain the license you are looking for, please `contact the *data.ox.ac.uk* team <mailto:opendata@oucs.ox.ac.uk>` and ask us to add it.
+
+More information can likely be gleaned from:
+
+* the `Research Services Office <http://www.admin.ox.ac.uk/rso/>`_
+* the `*data.ox.ac.uk* team <mailto:opendata@maillist.ox.ac.uk>`_
+* the University's `open data mailing list <mailto:opendata@oucs.ox.ac.uk>`_ (send a blank e-mail to opendata-subscribe@maillist.ox.ac.uk first to subscribe)
+* the Open Definition `Guide to Open Data Licensing <http://www.opendefinition.org/guide/data/>`_
+
+
+""".
