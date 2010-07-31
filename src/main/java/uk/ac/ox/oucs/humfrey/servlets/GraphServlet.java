@@ -93,7 +93,7 @@ public class GraphServlet extends ModelServlet {
 	}
 
 	protected void doIntersection(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	throws ServletException, IOException {
 		Property[] permissions = {PERM.mayAdminister, PERM.mayUpdate};
 		updateGraph(req, resp, permissions, new GraphUpdater(){
 			public void updateGraph(NamedGraphSet namedGraphSet, Graph graph, Node node) {
@@ -109,7 +109,18 @@ public class GraphServlet extends ModelServlet {
 			}
 		});
 	}
-	
+
+	protected void doSubtract(HttpServletRequest req, HttpServletResponse resp)
+	throws ServletException, IOException {
+		Property[] permissions = {PERM.mayAdminister, PERM.mayUpdate};
+		updateGraph(req, resp, permissions, new GraphUpdater(){
+			public void updateGraph(NamedGraphSet namedGraphSet, Graph graph, Node node) {
+				NamedGraph namedGraph = namedGraphSet.getGraph(node);
+				namedGraph.getBulkUpdateHandler().delete(graph);
+			}
+		});
+	}
+
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
 		Property[] permissions = {PERM.mayAdminister, PERM.mayUpdate, PERM.mayDelete};
 		Query query = getQuery(req, resp);
@@ -133,6 +144,8 @@ public class GraphServlet extends ModelServlet {
 			doUnion(req, resp);
 		else if (req.getMethod().equals("INTERSECTION"))
 			doIntersection(req, resp);
+		else if (req.getMethod().equals("SUBTRACT"))
+			doSubtract(req, resp);
 		else
 			super.service(req, resp);
 	}
