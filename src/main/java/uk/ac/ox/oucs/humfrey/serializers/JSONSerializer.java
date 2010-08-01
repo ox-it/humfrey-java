@@ -159,6 +159,16 @@ class JSONSerializer extends AbstractSerializer {
 		
 	}
 	
+	@Override
+	public void serializeBoolean(boolean value, Query query,
+			HttpServletRequest req, HttpServletResponse resp)
+	throws IOException {
+		Writer writer = resp.getWriter();
+		writeHeader(writer, req);
+		writer.write(value ? "true" : "false");
+		writeFooter(writer);
+	}
+	
 	private String _(String s) {
 		return "\"" + s + "\"";
 	}
@@ -170,6 +180,7 @@ class JSONSerializer extends AbstractSerializer {
 	@Override
 	public boolean canSerialize(SerializationType serializationType) {
 		switch (serializationType) {
+		case ST_BOOLEAN:
 		case ST_RESOURCE:
 		case ST_MODEL:
 		case ST_RESULTSET:
