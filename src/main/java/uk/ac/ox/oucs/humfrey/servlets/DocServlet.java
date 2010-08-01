@@ -8,7 +8,6 @@ import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.serializers.AbstractSerializer;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 public class DocServlet extends ModelServlet {
@@ -31,14 +30,6 @@ public class DocServlet extends ModelServlet {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
 	}
-	
-	private Model buildModelForResource(Resource resource) {
-		Model model = ModelFactory.createDefaultModel();
-		model.setNsPrefixes(getPrefixMapping());
-		return model;
-	}
-	
-
 	
 	@Override
 	protected FormatPreferences getAcceptFormats() {

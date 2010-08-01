@@ -113,22 +113,6 @@ public abstract class ModelServlet extends HttpServlet {
 		}
 	}
 	
-	public String parseAcceptHeader(String acceptHeader) {
-		String[] parts = acceptHeader.split(" *; *");
-		for (String part : parts) {
-			part = part.split(",")[0];
-			if (part.equals("application/rdf+xml"))
-				return "rdf";
-			else if (part.equals("text/n3"))
-				return "n3";
-			else if (part.equals("text/plain"))
-				return "nt";
-			else if (part.equals("text/turtle"))
-				return "ttl";
-		}
-		return null;
-	}
-	
 	protected Model getModel() {
 		return namedGraphSet.asJenaModel("");
 	}
