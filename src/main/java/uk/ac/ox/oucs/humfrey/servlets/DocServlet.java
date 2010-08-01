@@ -1,25 +1,15 @@
 package uk.ac.ox.oucs.humfrey.servlets;
 
-import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Map.Entry;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import uk.ac.ox.oucs.humfrey.FormatPreferences;
-import uk.ac.ox.oucs.humfrey.Namespaces;
 import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.serializers.AbstractSerializer;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 public class DocServlet extends ModelServlet {
 
@@ -33,7 +23,6 @@ public class DocServlet extends ModelServlet {
 		if (query == null)
 			return;
 		Model model = getModel();
-		URL url = query.getURL();
 		
 		if (containsQuerySubject(model, query)) {
 			Resource resource = model.getResource(query.getURI());
