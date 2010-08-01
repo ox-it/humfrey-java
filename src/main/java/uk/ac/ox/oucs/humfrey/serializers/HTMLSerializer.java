@@ -130,8 +130,22 @@ class HTMLSerializer extends AbstractSerializer {
 	}
 	
 	@Override
+	public void serializeBoolean(boolean value, Query query,
+			HttpServletRequest req, HttpServletResponse resp)
+	throws IOException {
+		VelocityContext context = new VelocityContext();
+		resp.setContentType(getContentType());
+		context.put("hasBooleanResult", true);
+		context.put("booleanResult", value);
+		context.put("query", req.getParameter("query"));
+		context.put("serializers", serializer.getSerializers(SerializationType.ST_EXCEPTION));
+		templater.render(resp, "sparql.vm", context);
+	}
+	
+	@Override
 	public boolean canSerialize(SerializationType serializationType) {
 		switch (serializationType) {
+		case ST_BOOLEAN:
 		case ST_RESOURCE:
 		case ST_RESULTSET:
 		case ST_EXCEPTION:

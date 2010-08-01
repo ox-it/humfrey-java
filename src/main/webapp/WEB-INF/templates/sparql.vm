@@ -7,6 +7,11 @@
   
   <pre>$esc.html($error)</pre>
 </section>
+#elseif($hasBooleanResult)
+<section>
+  <h2>Result</h2>
+  <pre>$booleanResult</pre>
+</section>
 #elseif($bindings)
 <section>
   <h2>Results</h2>

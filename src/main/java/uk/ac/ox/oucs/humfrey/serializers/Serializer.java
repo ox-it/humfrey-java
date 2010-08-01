@@ -134,6 +134,18 @@ public class Serializer {
 		}
 	}
 	
+	public void serializeBoolean(boolean value, Query query, HttpServletRequest req, HttpServletResponse resp) {
+		AbstractSerializer serializer = serializers.get(query.getAccept());
+		try {
+			serializer.serializeBoolean(value, query, req, resp);
+			resp.setStatus(HttpServletResponse.SC_OK);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (NotImplementedException e) {
+			resp.setStatus(query.negotiatedAccept() ? HttpServletResponse.SC_NOT_ACCEPTABLE : HttpServletResponse.SC_NOT_FOUND);
+		}
+	}
+	
 	public static Map<Property,Set<RDFNode>> getPropertyMap(Resource resource) {
 		StmtIterator stmts = resource.listProperties();
 		Map<Property,Set<RDFNode>> properties = new HashMap<Property,Set<RDFNode>>();

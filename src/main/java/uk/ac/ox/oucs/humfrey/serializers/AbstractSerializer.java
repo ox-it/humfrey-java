@@ -59,7 +59,7 @@ public abstract class AbstractSerializer {
 	public void serializeResourceList(List<Resource> resources, Query query, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		throw new NotImplementedException();
 	}
-	public void serializeBoolean(List<Resource> resources, Query query, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	public void serializeBoolean(boolean value, Query query, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		throw new NotImplementedException();
 	}
 	

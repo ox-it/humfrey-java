@@ -97,6 +97,7 @@ public class SparqlServlet extends ModelServlet {
 	private void executeQuery(QueryExecution qexec, int queryType, uk.ac.ox.oucs.humfrey.Query query, HttpServletRequest req, HttpServletResponse resp) {
 		switch (queryType) {
 		case Query.QueryTypeAsk:
+			executeAskQuery(query, qexec, req, resp);
 			break;
 		case Query.QueryTypeConstruct:
 			executeConstructQuery(query, qexec, req, resp);
@@ -110,6 +111,11 @@ public class SparqlServlet extends ModelServlet {
 		case Query.QueryTypeUnknown:
 			break;
 		}
+	}
+	
+	private void executeAskQuery(uk.ac.ox.oucs.humfrey.Query query, QueryExecution qexec, HttpServletRequest req, HttpServletResponse resp) {
+		boolean result = qexec.execAsk();
+		serializer.serializeBoolean(result, query, req, resp);
 	}
 	
 	private void executeSelectQuery(uk.ac.ox.oucs.humfrey.Query query, QueryExecution qexec, HttpServletRequest req, HttpServletResponse resp) {
