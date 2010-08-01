@@ -90,7 +90,7 @@ public class Serializer {
 		AbstractSerializer serializer = serializers.get(query.getAccept());
 		try {
 			serializer.serializeSparqlError(message, query, req, resp);
-			resp.setStatus(HttpServletResponse.SC_OK);
+			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} catch (NotImplementedException e) {
