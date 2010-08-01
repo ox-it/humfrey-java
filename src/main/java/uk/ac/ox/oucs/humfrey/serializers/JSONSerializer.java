@@ -54,9 +54,7 @@ class JSONSerializer extends AbstractSerializer {
 		
 		Writer writer = resp.getWriter();
 		
-		if (asJavaScript && req.getParameter("callback") != null)
-			writer.write(req.getParameter("callback")+"(");
-		
+		writeHeader(writer, req);
 		writer.write("{");
 		
 		ResIterator subjects = model.listSubjects();
@@ -67,10 +65,7 @@ class JSONSerializer extends AbstractSerializer {
 		}
 		
 		writer.write("}");
-		
-		if (req.getParameter("callback") != null)
-			writer.write(");");
-		
+		writeFooter(writer);
 		writer.write("\n");
 	}
 	
@@ -111,8 +106,7 @@ class JSONSerializer extends AbstractSerializer {
 		
 		Writer writer = resp.getWriter();
 
-		if (asJavaScript && req.getParameter("callback") != null)
-			writer.write(req.getParameter("callback")+"(");
+		writeHeader(writer, req);
 		writer.write("{bindings: [");
 		for (String binding : bindings) {
 			if (notFirst)
@@ -160,8 +154,7 @@ class JSONSerializer extends AbstractSerializer {
 				writer.write(", ");
 		}
 		writer.write("}}");
-		if (asJavaScript && req.getParameter("callback") != null)
-			writer.write(");");
+		writeFooter(writer);
 		writer.write("\n");
 		
 	}
@@ -184,5 +177,19 @@ class JSONSerializer extends AbstractSerializer {
 		default:
 			return false;
 		}
+	}
+	
+	private void writeHeader(Writer writer, HttpServletRequest req) throws IOException {
+		if (asJavaScript) {
+			if (req.getParameter("callback") != null)
+				writer.write(req.getParameter("callback") + "(");
+			else
+				writer.write("callback(");
+		}
+	}
+	
+	private void writeFooter(Writer writer) throws IOException {
+		if (asJavaScript)
+			writer.write(");");
 	}
 }
