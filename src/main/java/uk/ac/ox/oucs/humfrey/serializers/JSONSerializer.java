@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import uk.ac.ox.oucs.humfrey.Namespaces;
 import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.resources.VelocityResource;
 
@@ -45,11 +46,26 @@ class JSONSerializer extends AbstractSerializer {
 		else
 			return "JSON";
 	}
+	
+	@Override
+	public void serializeResource(Resource resource, Query query,
+			HttpServletRequest req, HttpServletResponse resp)
+	throws IOException {
+		Model model = resource.getModel();
+		model.setNsPrefixes(Namespaces.getPrefixMapping());
+		resp.setContentType(getContentType());
+		
+		Writer writer = resp.getWriter();
+		writeHeader(writer, req);
+		serializeResource(writer, model, resource);
+		writeFooter(writer);
+	}
 
 	@Override
 	public void serializeModel(Model model, Query query,
 			HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
+		model.setNsPrefixes(Namespaces.getPrefixMapping());
 		resp.setContentType(getContentType());
 		
 		Writer writer = resp.getWriter();
@@ -61,7 +77,7 @@ class JSONSerializer extends AbstractSerializer {
 		while (subjects.hasNext()) {
 			Resource subject = subjects.next();
 			if (subject.isURIResource())
-				serializeResource(writer, subject);
+				serializeResource(writer, model, subject);
 		}
 		
 		writer.write("}");
@@ -69,8 +85,8 @@ class JSONSerializer extends AbstractSerializer {
 		writer.write("\n");
 	}
 	
-	private void serializeResource(Writer writer, Resource resource) throws IOException {
-		writer.write(_(resource) + ": {");
+	private void serializeResource(Writer writer, Model model, Resource resource) throws IOException {
+		writer.write("{");
 		
 		Map<Property,Set<RDFNode>> propertyMap = Serializer.getPropertyMap(resource);
 		
@@ -80,7 +96,7 @@ class JSONSerializer extends AbstractSerializer {
 				writer.write(", ");
 			else
 				notFirstA = true;
-			writer.write(_(predicate) + ": [");
+			writer.write(_(model, predicate) + ": [");
 			boolean notFirstB = false;
 			for (RDFNode node : propertyMap.get(predicate)) {
 				if (notFirstB)
@@ -88,9 +104,11 @@ class JSONSerializer extends AbstractSerializer {
 				else
 					notFirstB = true;
 				if (node.isAnon())
-					serializeResource(writer, (Resource) node);
+					serializeResource(writer, model, (Resource) node);
+				else if (node.isURIResource())
+					writer.write(_(model, (Resource) node));
 				else
-					writer.write(_(node.toString()));
+					writer.write(_(((Literal) node).getLexicalForm()));
 			}
 			writer.write("]");
 		}
@@ -173,8 +191,13 @@ class JSONSerializer extends AbstractSerializer {
 		return "\"" + s + "\"";
 	}
 
-	private String _(Resource res) {
-		return _(res.getURI());
+	private String _(Model model, Resource res) {
+		String uri = res.getURI();
+		String shortForm = model.shortForm(uri);
+		if (!uri.equals(shortForm))
+			return _(shortForm.replace(":", "_"));
+		else
+			return _(uri);
 	}
 	
 	@Override
