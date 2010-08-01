@@ -138,7 +138,7 @@ class HTMLSerializer extends AbstractSerializer {
 		context.put("hasBooleanResult", true);
 		context.put("booleanResult", value);
 		context.put("query", req.getParameter("query"));
-		context.put("serializers", serializer.getSerializers(SerializationType.ST_EXCEPTION));
+		context.put("serializers", serializer.getSerializers(SerializationType.ST_BOOLEAN));
 		templater.render(resp, "sparql.vm", context);
 	}
 	
