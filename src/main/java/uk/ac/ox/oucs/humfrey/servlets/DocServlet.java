@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import uk.ac.ox.oucs.humfrey.FormatPreferences;
 import uk.ac.ox.oucs.humfrey.Namespaces;
 import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.serializers.AbstractSerializer;
@@ -79,6 +80,11 @@ public class DocServlet extends ModelServlet {
 				.addProperty(foaf_primaryTopic, model.createResource(query.getNode().toString()))
 				.addProperty(dct_format, entry.getValue().getContentType());
 		}
+	}
+	
+	@Override
+	protected FormatPreferences getAcceptFormats() {
+		return new FormatPreferences("rdf", "html", serializer.getSerializers(AbstractSerializer.SerializationType.ST_RESOURCE));
 	}
 
 }

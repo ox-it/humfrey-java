@@ -122,42 +122,11 @@ public class Serializer {
 		return properties;
 	}
 	
-	public Map<String,AbstractSerializer> getResourceSerializers(Resource resource) {
-		Map<String,AbstractSerializer> matches = new HashMap<String,AbstractSerializer>();
-		Set<Resource> types = Util.getTypes(resource);
-		for (String format : serializers.keySet()) {
-			AbstractSerializer serializer = serializers.get(format);
-			if (serializer.canSerializeResource(resource, types))
-				matches.put(format, serializer);
-		}
-		return matches;
-	}
-	
-	public Map<String,AbstractSerializer> getResourceListSerializers() {
+	public Map<String,AbstractSerializer> getSerializers(AbstractSerializer.SerializationType serializationType) {
 		Map<String,AbstractSerializer> matches = new HashMap<String,AbstractSerializer>();
 		for (String format : serializers.keySet()) {
 			AbstractSerializer serializer = serializers.get(format);
-			if (serializer.canSerializeResourceList())
-				matches.put(format, serializer);
-		}
-		return matches;
-	}
-	
-	public Map<String,AbstractSerializer> getModelSerializers() {
-		Map<String,AbstractSerializer> matches = new HashMap<String,AbstractSerializer>();
-		for (String format : serializers.keySet()) {
-			AbstractSerializer serializer = serializers.get(format);
-			if (serializer.canSerializeModel())
-				matches.put(format, serializer);
-		}
-		return matches;
-	}
-	
-	public Map<String,AbstractSerializer> getResultSetSerializers() {
-		Map<String,AbstractSerializer> matches = new HashMap<String,AbstractSerializer>();
-		for (String format : serializers.keySet()) {
-			AbstractSerializer serializer = serializers.get(format);
-			if (serializer.canSerializeResultSet())
+			if (serializer.canSerialize(serializationType))
 				matches.put(format, serializer);
 		}
 		return matches;

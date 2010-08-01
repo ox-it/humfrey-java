@@ -178,7 +178,7 @@ public class GraphServlet extends ModelServlet {
 		if (query.negotiatedAccept()) {
 			Set<String> contentTypes = new HashSet<String>();
 			for (AbstractSerializer serializer : serializers.values())
-				if (serializer.canSerializeModel())
+				if (serializer.canSerialize(AbstractSerializer.SerializationType.ST_MODEL))
 					contentTypes.add(serializer.getContentType());
 			resp.addHeader("X-Allow-Accept", StringUtils.join(contentTypes, ", "));
 		}

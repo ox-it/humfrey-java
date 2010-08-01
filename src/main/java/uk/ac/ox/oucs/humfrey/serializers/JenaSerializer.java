@@ -24,12 +24,13 @@ public abstract class JenaSerializer extends AbstractSerializer {
 	}
 
 	@Override
-	public boolean canSerializeResource(Resource resource, Set<Resource> types) {
-		return true;
-	}
-	
-	@Override
-	public boolean canSerializeModel() {
-		return true;
+	public boolean canSerialize(SerializationType serializationType) {
+		switch (serializationType) {
+		case ST_MODEL:
+		case ST_RESOURCE:
+			return true;
+		default:
+			return false;
+		}
 	}
 }

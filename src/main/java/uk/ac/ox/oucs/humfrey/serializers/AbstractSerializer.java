@@ -16,6 +16,17 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 public abstract class AbstractSerializer {
+	public enum SerializationType {
+		ST_NOQUERY,
+		ST_EXCEPTION,
+		ST_MODEL,
+		ST_RESULTSET,
+		ST_RESOURCE,
+		ST_RESOURCELIST,
+		ST_BOOLEAN,
+	}
+
+	
 	Map<String,AbstractSerializer> serializers;
 	
 	public abstract String getContentType();
@@ -36,19 +47,7 @@ public abstract class AbstractSerializer {
 		serializeModel(model, fullModel, query, req, resp);
 	}
 	
-	public boolean canSerializeResultSet() {
-		return false;
-	}
-	
-	public boolean canSerializeResource(Resource resource, Set<Resource> types) {
-		return false;
-	}
-	
-	public boolean canSerializeResourceList() {
-		return false;
-	}
-	
-	public boolean canSerializeModel() {
+	public boolean canSerialize(SerializationType serializationType) {
 		return false;
 	}
 }

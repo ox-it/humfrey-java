@@ -175,15 +175,14 @@ class JSONSerializer extends AbstractSerializer {
 	}
 	
 	@Override
-	public boolean canSerializeResource(Resource resource, Set<Resource> types) {
-		return true;
-	}
-	@Override
-	public boolean canSerializeModel() {
-		return true;
-	}
-	@Override
-	public boolean canSerializeResultSet() {
-		return true;
+	public boolean canSerialize(SerializationType serializationType) {
+		switch (serializationType) {
+		case ST_RESOURCE:
+		case ST_MODEL:
+		case ST_RESULTSET:
+			return true;
+		default:
+			return false;
+		}
 	}
 }

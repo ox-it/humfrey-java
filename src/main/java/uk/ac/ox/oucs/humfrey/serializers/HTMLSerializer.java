@@ -3,7 +3,6 @@ package uk.ac.ox.oucs.humfrey.serializers;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -62,7 +61,7 @@ class HTMLSerializer extends AbstractSerializer {
 		
 		context.put("resource", VelocityResource.create(resource, homeURIRegex, fullModel));
 		context.put("query", query);
-		context.put("serializers", serializer.getResourceSerializers(resource));
+		context.put("serializers", serializer.getSerializers(SerializationType.ST_RESOURCE));
 				context.put("model", fullModel);
 		
 		resp.setContentType(getContentType());
@@ -97,7 +96,7 @@ class HTMLSerializer extends AbstractSerializer {
 		context.put("results", results);
 		context.put("bindings", bindings);
 		context.put("query", req.getParameter("query"));
-		context.put("serializers", serializer.getResultSetSerializers());
+		context.put("serializers", serializer.getSerializers(SerializationType.ST_RESULTSET));
 		resp.setContentType(getContentType());
 		templater.render(resp, "sparql.vm", context);
 	}
@@ -116,7 +115,7 @@ class HTMLSerializer extends AbstractSerializer {
 		context.put("model", model);
 		context.put("resources", resources);
 		context.put("query", req.getParameter("query"));
-		context.put("serializers", serializer.getResourceListSerializers());
+		context.put("serializers", serializer.getSerializers(SerializationType.ST_RESOURCELIST));
 		templater.render(resp, "sparql.vm", context);
 	}
 
@@ -131,21 +130,21 @@ class HTMLSerializer extends AbstractSerializer {
 		resp.setContentType(getContentType());
 		context.put("error", message);
 		context.put("query", req.getParameter("query"));
-		context.put("serializers", serializer.getResultSetSerializers());
+		context.put("serializers", serializer.getSerializers(SerializationType.ST_EXCEPTION));
 		templater.render(resp, "sparql.vm", context);
 
 	}
-
+	
 	@Override
-	public boolean canSerializeResource(Resource resource, Set<Resource> types) {
-		return true;
-	}
-	@Override
-	public boolean canSerializeModel() {
-		return false;
-	}
-	@Override
-	public boolean canSerializeResultSet() {
-		return true;
+	public boolean canSerialize(SerializationType serializationType) {
+		switch (serializationType) {
+		case ST_RESOURCE:
+		case ST_RESULTSET:
+		case ST_EXCEPTION:
+		case ST_RESOURCELIST:
+			return true;
+		default:
+			return false;
+		}
 	}
 }

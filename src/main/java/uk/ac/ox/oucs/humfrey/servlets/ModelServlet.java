@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -26,12 +28,13 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
 import de.fuberlin.wiwiss.ng4j.db.NamedGraphSetDB;
 
+import uk.ac.ox.oucs.humfrey.FormatPreferences;
 import uk.ac.ox.oucs.humfrey.Namespaces;
 import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.Templater;
 import uk.ac.ox.oucs.humfrey.serializers.*;
 
-public class ModelServlet extends HttpServlet {
+public abstract class ModelServlet extends HttpServlet {
 	static NamedGraphSet namedGraphSet;
 	static Model configModel;
 	Serializer serializer;
@@ -89,9 +92,14 @@ public class ModelServlet extends HttpServlet {
 	}
 	
 	protected Query getQuery(HttpServletRequest req, HttpServletResponse resp) {
+		return getQuery(req, resp, getAcceptFormats(), getContentTypeFormats());
+		
+	}
+	
+	protected Query getQuery(HttpServletRequest req, HttpServletResponse resp, FormatPreferences acceptFormats, FormatPreferences contentTypeFormats) {
 		ServletContext context = getServletContext();
 		try {
-			return new Query(context.getInitParameter("humfrey.accountPrefix"), configModel, serializer, req);
+			return new Query(context.getInitParameter("humfrey.accountPrefix"), configModel, req, acceptFormats, contentTypeFormats);
 		} catch (Query.InvalidFormatException e) {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return null;
@@ -152,6 +160,13 @@ public class ModelServlet extends HttpServlet {
 		}
 		prefixMap.putAll(Namespaces.getPrefixMapping());
 		return prefixMap;
+	}
+	
+	protected FormatPreferences getAcceptFormats() {
+		throw new NotImplementedException();
+	}
+	protected FormatPreferences getContentTypeFormats() {
+		return FormatPreferences.noFormats;
 	}
 
 }

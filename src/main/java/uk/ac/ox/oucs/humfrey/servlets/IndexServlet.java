@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.VelocityContext;
 
+import uk.ac.ox.oucs.humfrey.FormatPreferences;
 import uk.ac.ox.oucs.humfrey.Namespaces;
 import uk.ac.ox.oucs.humfrey.servlets.ModelServlet;
 
@@ -17,6 +18,8 @@ import de.fuberlin.wiwiss.ng4j.NamedGraph;
 
 public class IndexServlet extends ModelServlet {
 	private static final long serialVersionUID = 5028351085414583181L;
+	private static FormatPreferences formatPreferences = new FormatPreferences("html", "html", "html");
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) {
 		Model model = namedGraphSet.asJenaModel("");
 		
@@ -42,5 +45,15 @@ public class IndexServlet extends ModelServlet {
 		templater.render(resp, "index.vm", context);
 		resp.setContentType("text/html");
 	}
+	
+	@Override
+	public FormatPreferences getAcceptFormats() {
+		return formatPreferences;
+	}
+	@Override
+	public FormatPreferences getContentTypeFormats() {
+		return FormatPreferences.noFormats;
+	}
+	
 
 }

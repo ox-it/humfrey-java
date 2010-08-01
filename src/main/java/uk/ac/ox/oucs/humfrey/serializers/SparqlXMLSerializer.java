@@ -82,16 +82,13 @@ public class SparqlXMLSerializer extends AbstractSerializer {
 	}
 	
 	@Override
-	public boolean canSerializeResource(Resource resource, Set<Resource> types) {
-		return false;
-	}
-	@Override
-	public boolean canSerializeModel() {
-		return false;
-	}
-	@Override
-	public boolean canSerializeResultSet() {
-		return true;
+	public boolean canSerialize(SerializationType serializationType) {
+		switch (serializationType) {
+		case ST_RESULTSET:
+			return true;
+		default:
+			return false;
+		}
 	}
 
 }

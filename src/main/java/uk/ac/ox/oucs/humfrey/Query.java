@@ -6,6 +6,8 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -13,7 +15,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.velocity.tools.generic.EscapeTool;
 
 import uk.ac.ox.oucs.humfrey.namespaces.PERM;
-import uk.ac.ox.oucs.humfrey.serializers.Serializer;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.rdf.model.Literal;
@@ -36,9 +37,24 @@ public class Query {
 	Resource user = null;
 	boolean foreignResource = false;
 	private static EscapeTool escapeTool = new EscapeTool(); 
+
+	static List<MediaType> mediaTypes = new LinkedList<MediaType>();
+	static {
+		Query q = new Query();
+		mediaTypes.add(q.new MediaType("application/xhtml+xml", "html"));
+		mediaTypes.add(q.new MediaType("text/html", "html"));
+		mediaTypes.add(q.new MediaType("application/rdf+xml", "rdf"));
+		mediaTypes.add(q.new MediaType("text/javascript", "js"));
+		mediaTypes.add(q.new MediaType("application/json", "json"));
+		mediaTypes.add(q.new MediaType("application/javascript", "js"));
+		mediaTypes.add(q.new MediaType("text/n3", "n3"));
+		mediaTypes.add(q.new MediaType("application/sparql-results+xml", "srx"));
+	}
+	
+	private Query() {}
 	
 	public Query(String accountPrefix, Model configModel,
-			Serializer serializer, HttpServletRequest req)
+			HttpServletRequest req, FormatPreferences acceptFormats, FormatPreferences contentTypeFormats)
 	throws InvalidFormatException, InvalidCredentialsException, UnknownQueryException {
 		try {
 			if (req.getHeader("X-Request-URL") != null)
@@ -63,9 +79,9 @@ public class Query {
 			String format = req.getParameter("format");
 			foreignResource = true;
 			if (format == null)
-				setAccept(negotiateContent(req.getHeader("Accept")));
+				setAccept(negotiateContent(req.getHeader("Accept"), acceptFormats));
 			else {
-				if (serializer.hasFormat(format)) {
+				if (acceptFormats.formatAvailable(format)) {
 					setAccept(format);
 					negotiatedAccept = false;
 				} else
@@ -76,27 +92,32 @@ public class Query {
 				|| path.startsWith("/doc/")) {
 			if (path.startsWith("/doc/"))
 				path = "/id/" + path.substring(5);
-			for (String format : serializer.getFormats()) {
+			for (String format : acceptFormats.union(contentTypeFormats)) {
 				if (path.endsWith("."+format)) {
-					setAccept(format);
-					setContentType(format);
-					negotiatedAccept = negotiatedContentType = false;
+					if (acceptFormats.formatAvailable(format)) {
+						setAccept(format);
+						negotiatedAccept = false;
+					}
+					if (contentTypeFormats.formatAvailable(format)) {
+						setContentType(format);
+						negotiatedContentType = false;
+					}
 					path = path.substring(0, path.lastIndexOf('.'));
 				}
 			}
 			if (accept == null)
-				setAccept(negotiateContent(req.getHeader("Accept")));
+				setAccept(negotiateContent(req.getHeader("Accept"), acceptFormats));
 			if (contentType == null)
-				setContentType(negotiateContent(req.getHeader("Content-Type"), "rdf", null));
+				setContentType(negotiateContent(req.getHeader("Content-Type"), contentTypeFormats));
 			url = buildURL(url.getProtocol(), url.getHost(), url.getPort(), path);
 			uri = Node.createURI(url.toString());
 		} else if (path.equals("/sparql/")) {
 			String format = req.getParameter("format");
 			foreignResource = true;
 			if (format == null)
-				setAccept(negotiateContent(req.getHeader("Accept")));
+				setAccept(negotiateContent(req.getHeader("Accept"), acceptFormats));
 			else {
-				if (serializer.hasFormat(format)) {
+				if (acceptFormats.formatAvailable(format)) {
 					setAccept(format);
 					negotiatedAccept = false;
 				} else
@@ -104,7 +125,7 @@ public class Query {
 			}
 		} else {
 			uri = Node.createURI(url.toString());
-			setAccept(negotiateContent(req.getHeader("Accept")));
+			setAccept(negotiateContent(req.getHeader("Accept"), acceptFormats));
 			
 		}
 
@@ -190,32 +211,19 @@ public class Query {
 		return docURL;
 	}
 	
-	private String negotiateContent(String header) {
-		return negotiateContent(header, "rdf", "html");
-	}
-	
-	private String negotiateContent(String header, String defaultIfMissing, String defaultIfNotFound) {
+	private String negotiateContent(String header, FormatPreferences formats) {
 		if (header == null)
-			return defaultIfMissing;
+			return formats.getDefaultNotProvided();
 		String[] mimeTypes = header.split(",");
+		
 		for (String mimeType : mimeTypes) {
 			mimeType = mimeType.split(";")[0].trim();
-			if (mimeType.equals("application/xhtml+xml"))
-				return "html";
-			else if (mimeType.equals("text/html"))
-				return "html";
-			else if (mimeType.equals("application/rdf+xml"))
-				return "rdf";
-			else if (mimeType.equals("text/n3"))
-				return "n3";
-			else if (mimeType.equals("application/json"))
-				return "json";
-			else if (mimeType.equals("text/javascript"))
-				return "js";
-			else if (mimeType.equals("application/javascript"))
-				return "js";
+			
+			for (MediaType mediaType : mediaTypes)
+				if (mimeType.equals(mediaType.mediaType) && formats.formatAvailable(mediaType.format))
+					return mediaType.format;
 		}
-		return defaultIfNotFound;
+		return formats.getDefaultNotFound();
 	}
 	
 	public Node getNode() {
@@ -258,6 +266,14 @@ public class Query {
 	}
 	public class UnknownQueryException extends Exception {
 		private static final long serialVersionUID = -3887601882049480798L;
+	}
+	
+	private class MediaType {
+		public String mediaType, format;
+		public MediaType(String mediaType, String format) {
+			this.mediaType = mediaType; this.format = format;
+		}
+		
 	}
 	
 
