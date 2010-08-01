@@ -28,7 +28,7 @@ public abstract class JenaSerializer extends AbstractSerializer {
 			HttpServletResponse resp) throws IOException {
 		Model model = buildModelForResource(resource);
 		addFormatInformation(model, query, serializer);
-		serializeModel(buildModelForResource(resource), query, req, resp);
+		serializeModel(model, query, req, resp);
 	}
 	
 	@Override
