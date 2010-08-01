@@ -7,6 +7,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import uk.ac.ox.oucs.humfrey.Namespaces;
 import uk.ac.ox.oucs.humfrey.Query;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -43,6 +44,7 @@ public abstract class JenaSerializer extends AbstractSerializer {
 			HttpServletResponse resp) throws IOException {
 		resp.setContentType(getContentType());
 		Writer writer = resp.getWriter();
+		model.setNsPrefixes(Namespaces.getPrefixMapping());
 		model.write(writer, getSerialization());
 	}
 
