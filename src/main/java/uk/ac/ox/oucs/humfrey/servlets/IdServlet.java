@@ -7,7 +7,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import uk.ac.ox.oucs.humfrey.FormatPreferences;
 import uk.ac.ox.oucs.humfrey.Query;
+import uk.ac.ox.oucs.humfrey.serializers.AbstractSerializer;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
@@ -33,6 +35,11 @@ public class IdServlet extends ModelServlet {
 		} else {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
+	}
+	
+	@Override
+	protected FormatPreferences getAcceptFormats() {
+		return new FormatPreferences("rdf", "html", serializer.getSerializers(AbstractSerializer.SerializationType.ST_RESOURCE));
 	}
 
 }
