@@ -18,7 +18,7 @@ final public class Namespaces {
 	public static Namespace owl = new Namespace("owl", "http://www.w3.org/2002/07/owl#");
 	public static Namespace dc = new Namespace("dc", "http://purl.org/dc/elements/1.1/");
 	public static Namespace dcat = new Namespace("dcat", "http://vocab.deri.ie/dcat#");
-	public static Namespace dct = new Namespace("dct", "http://purl.org/dc/terms/");
+	public static Namespace dcterms = new Namespace("dcterms", "http://purl.org/dc/terms/");
 	public static Namespace dctype = new Namespace("dctype", "http://purl.org/dc/dcmitype/");
 	public static Namespace event = new Namespace("event", "http://purl.org/NET/c4dm/event.owl#");
 	public static Namespace foaf = new Namespace("foaf", "http://xmlns.com/foaf/0.1/");
