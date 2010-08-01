@@ -119,12 +119,12 @@ public class SparqlServlet extends ModelServlet {
 	
 	private void executeDescribeQuery(uk.ac.ox.oucs.humfrey.Query query, QueryExecution qexec, HttpServletRequest req, HttpServletResponse resp) {
 		Model model = qexec.execDescribe();
-		serializer.serializeResources(model, query, req, resp);
+		serializer.serializeResourceList(model, query, req, resp);
 	}
 	
 	private void executeConstructQuery(uk.ac.ox.oucs.humfrey.Query query, QueryExecution qexec, HttpServletRequest req, HttpServletResponse resp) {
 		Model model = qexec.execConstruct();
-		serializer.serializeResources(model, query, req, resp);
+		serializer.serializeResourceList(model, query, req, resp);
 	}
 
 	private FormatPreferences getAcceptableFormats(int queryType) {

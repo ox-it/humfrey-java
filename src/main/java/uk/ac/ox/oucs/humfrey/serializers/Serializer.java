@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,7 +23,6 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.Templater;
-import uk.ac.ox.oucs.humfrey.Util;
 
 /**
  * An interface to all available serializers.
@@ -36,10 +36,10 @@ public class Serializer {
 	public Serializer(Model fullModel, Templater templater, String homeURIRegex) {
 		this.fullModel = fullModel;
 		
-		serializers.put("rdf", new RDFXMLSerializer());
-		serializers.put("n3", new Notation3Serializer());
-		serializers.put("nt", new NTripleSerializer());
-		serializers.put("ttl", new TurtleSerializer());
+		serializers.put("rdf", new RDFXMLSerializer(this, homeURIRegex));
+		serializers.put("n3", new Notation3Serializer(this, homeURIRegex));
+		serializers.put("nt", new NTripleSerializer(this, homeURIRegex));
+		serializers.put("ttl", new TurtleSerializer(this, homeURIRegex));
 		serializers.put("js", new JSONSerializer(true));
 		serializers.put("json", new JSONSerializer(false));
 		serializers.put("srx", new SparqlXMLSerializer());
@@ -65,7 +65,7 @@ public class Serializer {
 	public void serializeModel(Model model, Query query, HttpServletRequest req, HttpServletResponse resp) {
 		AbstractSerializer serializer = serializers.get(query.getAccept());
 		try {
-			serializer.serializeModel(model, fullModel, query, req, resp);
+			serializer.serializeModel(model, query, req, resp);
 			resp.setStatus(HttpServletResponse.SC_OK);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -98,10 +98,34 @@ public class Serializer {
 		}
 	}
 	
-	public void serializeResources(Model model, Query query, HttpServletRequest req, HttpServletResponse resp) {
+	public void serializeResource(Resource resource, Query query, HttpServletRequest req, HttpServletResponse resp) {
 		AbstractSerializer serializer = serializers.get(query.getAccept());
 		try {
-			serializer.serializeResources(model, fullModel, query, req, resp);
+			serializer.serializeResource(resource, query, req, resp);
+			resp.setStatus(HttpServletResponse.SC_OK);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (NotImplementedException e) {
+			resp.setStatus(query.negotiatedAccept() ? HttpServletResponse.SC_NOT_ACCEPTABLE : HttpServletResponse.SC_NOT_FOUND);
+		}
+	}
+	
+	public void serializeResourceList(List<Resource> resources, Query query, HttpServletRequest req, HttpServletResponse resp) {
+		AbstractSerializer serializer = serializers.get(query.getAccept());
+		try {
+			serializer.serializeResourceList(resources, query, req, resp);
+			resp.setStatus(HttpServletResponse.SC_OK);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (NotImplementedException e) {
+			resp.setStatus(query.negotiatedAccept() ? HttpServletResponse.SC_NOT_ACCEPTABLE : HttpServletResponse.SC_NOT_FOUND);
+		}
+	}
+	
+	public void serializeResourceList(Model model, Query query, HttpServletRequest req, HttpServletResponse resp) {
+		AbstractSerializer serializer = serializers.get(query.getAccept());
+		try {
+			serializer.serializeResourceList(model, query, req, resp);
 			resp.setStatus(HttpServletResponse.SC_OK);
 		} catch (IOException e) {
 			throw new RuntimeException(e);

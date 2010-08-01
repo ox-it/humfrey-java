@@ -17,9 +17,7 @@ import uk.ac.ox.oucs.humfrey.resources.VelocityResource;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 
@@ -52,17 +50,15 @@ class HTMLSerializer extends AbstractSerializer {
 	}
 
 	@Override
-	public void serializeModel(Model model, Model fullModel, Query query,
+	public void serializeResource(Resource resource, Query query,
 			HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 
 		VelocityContext context = new VelocityContext();
-		Resource resource = fullModel.getResource(query.getURI());
 		
-		context.put("resource", VelocityResource.create(resource, homeURIRegex, fullModel));
+		context.put("resource", VelocityResource.create(resource, homeURIRegex));
 		context.put("query", query);
 		context.put("serializers", serializer.getSerializers(SerializationType.ST_RESOURCE));
-				context.put("model", fullModel);
 		
 		resp.setContentType(getContentType());
 		
@@ -102,18 +98,16 @@ class HTMLSerializer extends AbstractSerializer {
 	}
 	
 	@Override
-	public void serializeResources(Model model, Model fullModel, Query query, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	public void serializeResourceList(List<Resource> resources, Query query, HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-		List<VelocityResource> resources = new LinkedList<VelocityResource>();
+		List<VelocityResource> velocityResources = new LinkedList<VelocityResource>();
 		
-		ResIterator subjects = model.listSubjects();
-		while (subjects.hasNext())
-			resources.add(VelocityResource.create(subjects.next(), homeURIRegex));
+		for (Resource resource : resources)
+			velocityResources.add(VelocityResource.create(resource, homeURIRegex));
 		
 		VelocityContext context = new VelocityContext();
 		resp.setContentType(getContentType());
-		context.put("model", model);
-		context.put("resources", resources);
+		context.put("resources", velocityResources);
 		context.put("query", req.getParameter("query"));
 		context.put("serializers", serializer.getSerializers(SerializationType.ST_RESOURCELIST));
 		templater.render(resp, "sparql.vm", context);

@@ -47,7 +47,7 @@ class JSONSerializer extends AbstractSerializer {
 	}
 
 	@Override
-	public void serializeModel(Model model, Model fullModel, Query query,
+	public void serializeModel(Model model, Query query,
 			HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		resp.setContentType(getContentType());
