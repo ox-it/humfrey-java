@@ -13,18 +13,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import uk.ac.ox.oucs.humfrey.Namespaces;
 import uk.ac.ox.oucs.humfrey.Query;
 
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.sparql.vocabulary.FOAF;
+import com.hp.hpl.jena.vocabulary.DCTerms;
+import com.hp.hpl.jena.vocabulary.DCTypes;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 public abstract class AbstractSerializer {
 	public enum SerializationType {
@@ -95,20 +96,24 @@ public abstract class AbstractSerializer {
 	}
 	
 	protected static void addFormatInformation(Model model, Query query, Serializer serializer) {
-		Property dct_isFormatOf = Namespaces.dct.p("isFormatOf");
-		Property dct_format = Namespaces.dct.p("format");
-		Property rdf_type = Namespaces.rdf.p("type");
-		Property foaf_primaryTopic = Namespaces.foaf.p("primaryTopic");
-		RDFNode docURI = model.createResource(query.getDocURL());
+		Resource docURI = model.createResource(query.getDocURL());
+		Resource resource = model.createResource(query.getURI());
+		
+		docURI
+			.addProperty(RDF.type, DCTypes.Text)
+			.addProperty(RDF.type, FOAF.Document)
+			.addProperty(FOAF.primaryTopic, resource);
 		
 		for (Entry<String, AbstractSerializer> entry : serializer.getSerializers(SerializationType.ST_RESOURCE).entrySet()) {
 			Resource docFormatURI = model.createResource(query.getDocURL(entry.getKey()));
 			docFormatURI
-				.addProperty(dct_isFormatOf, docURI)
-				.addProperty(rdf_type, Namespaces.dctype.r("Text"))
-				.addProperty(rdf_type, Namespaces.foaf.r("Document"))
-				.addProperty(foaf_primaryTopic, model.createResource(query.getNode().toString()))
-				.addProperty(dct_format, entry.getValue().getContentType());
+				.addProperty(DCTerms.isFormatOf, docURI)
+				.addProperty(RDF.type, DCTypes.Text)
+				.addProperty(RDF.type, FOAF.Document)
+				.addProperty(FOAF.primaryTopic, resource)
+				.addProperty(DCTerms.format, entry.getValue().getContentType());
+			docURI
+				.addProperty(DCTerms.hasFormat, docFormatURI);
 		}
 	}
 }
