@@ -18,6 +18,7 @@ import uk.ac.ox.oucs.humfrey.Query;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
@@ -90,8 +91,9 @@ public abstract class AbstractSerializer {
 		while (stmts.hasNext()) {
 			Statement stmt = stmts.next();
 			model.add(stmt);
-			if (stmt.getObject().isAnon() && !seen.contains(resource))
-				buildModelForResource(resource, model, seen);
+			RDFNode object = stmt.getObject();
+			if (object.isAnon() && !seen.contains(object))
+				buildModelForResource((Resource) object, model, seen);
 		}
 	}
 	
