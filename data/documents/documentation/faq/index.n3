@@ -21,10 +21,10 @@ Frequently Asked Questions
 ==========================
 
 What is linked data?
-    Linked data is data with links.
+    Linked data is data with links. It is a method for exposing, sharing, and connecting data on the web via dereferencable URIS.
 What do you mean by open?
-    Well, my dear...
+    We mean that the data is freely available and licensed with an open licence that encourages re-use of that data.
 How do I work out what I can do with a particular dataset?
-    Read the license!
+    Read the licence! What you can do depends on the licence provided any particular dataset. However, you should be able to re-use, combine, and make derivative works of most data hosted here.
 
 """.
