@@ -44,6 +44,7 @@ public class Serializer {
 		serializers.put("json", new JSONSerializer(false));
 		serializers.put("srx", new SparqlXMLSerializer());
 		serializers.put("srj", new SparqlJSONSerializer());
+		serializers.put("csv", new CSVSerializer());
 		serializers.put("html", new HTMLSerializer(templater, this, homeURIRegex));
 	}
 	
