@@ -43,6 +43,7 @@ public class Serializer {
 		serializers.put("js", new JSONSerializer(true));
 		serializers.put("json", new JSONSerializer(false));
 		serializers.put("srx", new SparqlXMLSerializer());
+		serializers.put("srj", new SparqlJSONSerializer());
 		serializers.put("html", new HTMLSerializer(templater, this, homeURIRegex));
 	}
 	
