@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,14 +16,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.NotImplementedException;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.query.Dataset;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
-
-import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
-import de.fuberlin.wiwiss.ng4j.db.NamedGraphSetDB;
+import com.hp.hpl.jena.tdb.TDB;
+import com.hp.hpl.jena.tdb.TDBFactory;
 
 import uk.ac.ox.oucs.humfrey.FormatPreferences;
 import uk.ac.ox.oucs.humfrey.Namespaces;
@@ -35,7 +31,7 @@ import uk.ac.ox.oucs.humfrey.Templater;
 import uk.ac.ox.oucs.humfrey.serializers.*;
 
 public abstract class ModelServlet extends HttpServlet {
-	static NamedGraphSet namedGraphSet;
+	static Dataset dataset;
 	static Model configModel;
 	Serializer serializer;
 	Templater templater;
@@ -55,19 +51,13 @@ public abstract class ModelServlet extends HttpServlet {
 			throw new ServletException(e);
 		}
 		
+		TDB.getContext().set(TDB.symUnionDefaultGraph, true);
+		dataset = TDBFactory.createDataset("/tmp/tdb/");
+		
 		ServletContext context = getServletContext();
-		Connection connection;
-		try {
-			connection = DriverManager.getConnection(
-					context.getInitParameter("humfrey.databaseURL"),
-					context.getInitParameter("humfrey.databaseUser"),
-					context.getInitParameter("humfrey.databasePassword"));
-		} catch (SQLException e) {
-			throw new ServletException(e);
-		}
-		namedGraphSet = new NamedGraphSetDB(connection);
+		
 		templater = new Templater(getServletContext());
-		serializer = new Serializer(namedGraphSet.asJenaModel(""), templater, homeURIRegex);
+		serializer = new Serializer(dataset, templater, homeURIRegex);
 		homeURIRegex = context.getInitParameter("humfrey.homeURIRegex");
 
 		configModel = ModelFactory.createDefaultModel();
@@ -113,17 +103,13 @@ public abstract class ModelServlet extends HttpServlet {
 		}
 	}
 	
-	protected Model getModel() {
-		return namedGraphSet.asJenaModel("");
-	}
-	
 	protected boolean containsQuerySubject(Model model, Query query) {
 		return model.containsResource(model.createResource(query.getURL().toString()));
 	}
 	
 	protected Map<String,String> getPrefixMapping() {
-		Graph graph = namedGraphSet.asJenaGraph(Node.createURI(""));
 		Map<String,String> prefixMap = new HashMap<String,String>();
+		/*Graph graph = namedGraphSet.asJenaGraph(Node.createURI(""));
 		ExtendedIterator<Triple> triples = graph.find(
 				null,
 				Namespaces.rdf._("type"),
@@ -141,9 +127,14 @@ public abstract class ModelServlet extends HttpServlet {
 			
 			prefixMap.put(uris.next().getObject().toString(),
 						 prefixes.next().getObject().toString());
-		}
+		}*/
 		prefixMap.putAll(Namespaces.getPrefixMapping());
 		return prefixMap;
+	}
+	
+	protected boolean datasetContains(String uri) {
+		QueryExecution qexec = QueryExecutionFactory.create("ASK WHERE {<"+uri+"> ?p ?o}", dataset);
+		return qexec.execAsk();
 	}
 	
 	protected FormatPreferences getAcceptFormats() {

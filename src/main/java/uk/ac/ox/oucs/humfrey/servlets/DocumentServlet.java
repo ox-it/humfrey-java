@@ -12,7 +12,6 @@ import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.resources.VelocityResource;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 public class DocumentServlet extends DocServlet {
@@ -27,7 +26,7 @@ public class DocumentServlet extends DocServlet {
 		
 		DocumentTransformer documentTransformer = new DocumentTransformer();
 		
-		Model model = ModelFactory.createModelForGraph(namedGraphSet.getGraph(documentationGraphName));
+		Model model = dataset.getNamedModel(documentationGraphName);
 		Resource resource = model.createResource(query.getURI());
 		if (!query.getAccept().equals("html") || !model.containsResource(resource) || !documentTransformer.isTransformable(resource)) {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);

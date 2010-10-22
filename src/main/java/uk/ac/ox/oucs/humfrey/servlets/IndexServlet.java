@@ -1,7 +1,5 @@
 package uk.ac.ox.oucs.humfrey.servlets;
 
-import java.util.Iterator;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -11,36 +9,23 @@ import uk.ac.ox.oucs.humfrey.FormatPreferences;
 import uk.ac.ox.oucs.humfrey.Namespaces;
 import uk.ac.ox.oucs.humfrey.servlets.ModelServlet;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ResIterator;
-
-import de.fuberlin.wiwiss.ng4j.NamedGraph;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Literal;
 
 public class IndexServlet extends ModelServlet {
 	private static final long serialVersionUID = 5028351085414583181L;
 	private static FormatPreferences formatPreferences = new FormatPreferences("html", "html", "html");
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) {
-		Model model = namedGraphSet.asJenaModel("");
-		
 		VelocityContext context = new VelocityContext();
-		context.put("size", model.size());
 		
-		ResIterator datasetIterator = model.listSubjectsWithProperty(Namespaces.rdf.p("type"), Namespaces.dcat.r("Dataset"));
-		int datasetCount = 0;
-		while (datasetIterator.hasNext()) {
-			datasetIterator.next();
-			datasetCount += 1;
-		}
-		context.put("datasetCount", datasetCount);
+		QueryExecution qexec = QueryExecutionFactory.create("SELECT (COUNT(?d) as ?count) WHERE { ?d a <"+Namespaces.dcat._("Dataset")+"> }", dataset);
+		ResultSet results = qexec.execSelect();
+		context.put("datasetCount", ((Literal) results.next().get("count")).getValue());
 		
-		int graphCount = 0;
-		Iterator<NamedGraph> graphIterator = namedGraphSet.listGraphs();
-		while (graphIterator.hasNext()) {
-			graphIterator.next();
-			graphCount += 1;
-		}
-		context.put("graphCount", graphCount);
+		context.put("graphCount", dataset.asDatasetGraph().size());
 		
 		templater.render(resp, "index.vm", context);
 		resp.setContentType("text/html");

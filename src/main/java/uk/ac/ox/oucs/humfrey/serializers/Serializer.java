@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.NotImplementedException;
 
+import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -31,10 +32,10 @@ import uk.ac.ox.oucs.humfrey.Templater;
  */
 public class Serializer {
 	private Map<String,AbstractSerializer> serializers = new HashMap<String,AbstractSerializer>();
-	Model fullModel;
+	Dataset dataset;
 	
-	public Serializer(Model fullModel, Templater templater, String homeURIRegex) {
-		this.fullModel = fullModel;
+	public Serializer(Dataset dataset, Templater templater, String homeURIRegex) {
+		this.dataset = dataset;
 		
 		serializers.put("rdf", new RDFXMLSerializer(this, homeURIRegex));
 		serializers.put("n3", new Notation3Serializer(this, homeURIRegex));

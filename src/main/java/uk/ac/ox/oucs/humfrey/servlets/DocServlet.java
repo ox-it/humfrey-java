@@ -7,6 +7,8 @@ import uk.ac.ox.oucs.humfrey.FormatPreferences;
 import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.serializers.AbstractSerializer;
 
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
@@ -21,9 +23,10 @@ public class DocServlet extends ModelServlet {
 		Query query = getQuery(req, resp);
 		if (query == null)
 			return;
-		Model model = getModel();
 		
-		if (containsQuerySubject(model, query)) {
+		if (datasetContains(query.getURI())) {
+			QueryExecution qexec = QueryExecutionFactory.create("DESCRIBE <"+query.getURI()+">");
+			Model model = qexec.execDescribe();
 			Resource resource = model.getResource(query.getURI());
 			serializer.serializeResource(resource, query, req, resp);
 		} else {

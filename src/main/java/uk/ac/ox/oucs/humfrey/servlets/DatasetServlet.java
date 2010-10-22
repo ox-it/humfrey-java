@@ -12,6 +12,8 @@ import org.apache.velocity.VelocityContext;
 import uk.ac.ox.oucs.humfrey.Namespaces;
 import uk.ac.ox.oucs.humfrey.resources.VelocityResource;
 
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 
@@ -19,7 +21,8 @@ public class DatasetServlet extends ModelServlet {
 	private static final long serialVersionUID = 7796801302636827658L;
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) {
-		Model model = namedGraphSet.asJenaModel("");
+		QueryExecution qexec = QueryExecutionFactory.create("DESCRIBE ?d WHERE { ?d a <"+Namespaces.dcat._("Dataset")+"> }");
+		Model model = qexec.execDescribe();
 
 		List<VelocityResource> datasets = new LinkedList<VelocityResource>();
 		ResIterator datasetIterator = model.listSubjectsWithProperty(Namespaces.rdf.p("type"), Namespaces.dcat.r("Dataset"));

@@ -11,8 +11,6 @@ import uk.ac.ox.oucs.humfrey.FormatPreferences;
 import uk.ac.ox.oucs.humfrey.Query;
 import uk.ac.ox.oucs.humfrey.serializers.AbstractSerializer;
 
-import com.hp.hpl.jena.rdf.model.Model;
-
 public class IdServlet extends ModelServlet {
 
 	/**
@@ -25,10 +23,10 @@ public class IdServlet extends ModelServlet {
 		Query query = getQuery(req, resp);
 		if (query == null)
 			return;
-		Model model = getModel();
+		
 		URL url = query.getURL();
 		
-		if (containsQuerySubject(model, query)) {
+		if (datasetContains(query.getURI())) {
 			resp.setStatus(HttpServletResponse.SC_SEE_OTHER);
 			URL location = Query.buildURL(url.getProtocol(), url.getHost(), url.getPort(), "/doc/" + url.getPath().substring(4) + "." + query.getAccept());
 			resp.addHeader("Location", location.toString());

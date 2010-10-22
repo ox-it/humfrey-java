@@ -29,9 +29,6 @@ import uk.ac.ox.oucs.humfrey.serializers.AbstractSerializer;
 import uk.ac.ox.oucs.humfrey.serializers.JenaSerializer;
 
 import com.hp.hpl.jena.datatypes.BaseDatatype;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
@@ -45,13 +42,9 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.DC;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.XSD;
-
-import de.fuberlin.wiwiss.ng4j.NamedGraph;
-import de.fuberlin.wiwiss.ng4j.NamedGraphSet;
 
 public class GraphServlet extends ModelServlet {
 	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
@@ -65,15 +58,14 @@ public class GraphServlet extends ModelServlet {
 		Query query = getQuery(req, resp);
 		if (query == null)
 			return;
-		Node uri = query.getNode();
+		String uri = query.getURI();
 
-		if (!namedGraphSet.containsGraph(uri)) {
+		if (!dataset.containsNamedModel(uri)) {
 			resp.setStatus(404);
 			return;
 		}
 
-		Graph graph = namedGraphSet.getGraph(uri);
-		serializeGraph(graph, query, req, resp);
+		serializeModel(dataset.getNamedModel(uri), query, req, resp);
 
 	}
 
@@ -81,10 +73,11 @@ public class GraphServlet extends ModelServlet {
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp)
 	throws ServletException, IOException {
 		Property[] permissions = {PERM.mayAdminister, PERM.mayUpdate};
-		updateGraph(req, resp, permissions, new GraphUpdater() {
-			public void updateGraph(NamedGraphSet namedGraphSet, Graph graph, Node node) {
-				NamedGraph namedGraph = namedGraphSet.createGraph(node);
-				namedGraph.getBulkUpdateHandler().add(graph);
+		updateModel(req, resp, permissions, new ModelUpdater() {
+			public void updateModel(Model model, String uri) {
+				Model m = dataset.getNamedModel(uri);
+				m.removeAll();
+				m.add(model);
 			}
 		});
 	}
@@ -92,10 +85,9 @@ public class GraphServlet extends ModelServlet {
 	protected void doUnion(HttpServletRequest req, HttpServletResponse resp)
 	throws ServletException, IOException {
 		Property[] permissions = {PERM.mayAdminister, PERM.mayUpdate, PERM.mayAugment};
-		updateGraph(req, resp, permissions, new GraphUpdater(){
-			public void updateGraph(NamedGraphSet namedGraphSet, Graph graph, Node node) {
-				NamedGraph namedGraph = namedGraphSet.getGraph(node);
-				namedGraph.getBulkUpdateHandler().add(graph);
+		updateModel(req, resp, permissions, new ModelUpdater(){
+			public void updateModel(Model model, String uri) {
+				dataset.getNamedModel(uri).add(model);
 			}
 		});
 	}
@@ -103,17 +95,17 @@ public class GraphServlet extends ModelServlet {
 	protected void doIntersection(HttpServletRequest req, HttpServletResponse resp)
 	throws ServletException, IOException {
 		Property[] permissions = {PERM.mayAdminister, PERM.mayUpdate};
-		updateGraph(req, resp, permissions, new GraphUpdater(){
-			public void updateGraph(NamedGraphSet namedGraphSet, Graph graph, Node node) {
-				NamedGraph namedGraph = namedGraphSet.getGraph(node);
-				ExtendedIterator<Triple> triples = namedGraph.find(null, null, null);
-				List<Triple> triplesToRemove = new LinkedList<Triple>();
-				while (triples.hasNext()) {
-					Triple triple = triples.next();
-					if (!graph.contains(triple))
-						triplesToRemove.add(triple);
+		updateModel(req, resp, permissions, new ModelUpdater(){
+			public void updateModel(Model model, String uri) {
+				Model target = dataset.getNamedModel(uri);
+				StmtIterator stmts = target.listStatements();
+				List<Statement> stmtsToRemove = new LinkedList<Statement>();
+				while (stmts.hasNext()) {
+					Statement stmt = stmts.next();
+					if (!model.contains(stmt))
+						stmtsToRemove.add(stmt);
 				}
-				namedGraph.getBulkUpdateHandler().delete(triplesToRemove);
+				target.remove(stmtsToRemove);
 			}
 		});
 	}
@@ -121,10 +113,9 @@ public class GraphServlet extends ModelServlet {
 	protected void doSubtract(HttpServletRequest req, HttpServletResponse resp)
 	throws ServletException, IOException {
 		Property[] permissions = {PERM.mayAdminister, PERM.mayUpdate};
-		updateGraph(req, resp, permissions, new GraphUpdater(){
-			public void updateGraph(NamedGraphSet namedGraphSet, Graph graph, Node node) {
-				NamedGraph namedGraph = namedGraphSet.getGraph(node);
-				namedGraph.getBulkUpdateHandler().delete(graph);
+		updateModel(req, resp, permissions, new ModelUpdater(){
+			public void updateModel(Model model, String uri) {
+				dataset.getNamedModel(uri).remove(model);
 			}
 		});
 	}
@@ -136,9 +127,9 @@ public class GraphServlet extends ModelServlet {
 			return;
 		if (performPermissionsCheck(getServletContext(), query, resp, permissions))
 			return;
-		Node node = query.getNode();
-		if (namedGraphSet.containsGraph(node)) {
-			namedGraphSet.removeGraph(node);
+		String uri = query.getURI();
+		if (dataset.containsNamedModel(uri)) {
+			dataset.getNamedModel(uri).removeAll();
 			resp.setStatus(200);
 		} else
 			resp.setStatus(404);
@@ -157,7 +148,7 @@ public class GraphServlet extends ModelServlet {
 		
 		methods.add("OPTIONS");
 		
-		if (namedGraphSet.containsGraph(query.getNode())) {
+		if (dataset.containsNamedModel(query.getURI())) {
 			methods.add("HEAD"); methods.add("GET");
 		}
 		
@@ -205,8 +196,8 @@ public class GraphServlet extends ModelServlet {
 			super.service(req, resp);
 	}
 
-	private void updateGraph(HttpServletRequest req, HttpServletResponse resp, Property[] permissions,
-			GraphUpdater graphUpdater) throws ServletException, IOException {
+	private void updateModel(HttpServletRequest req, HttpServletResponse resp, Property[] permissions,
+			ModelUpdater modelUpdater) throws ServletException, IOException {
 		Query query = getQuery(req, resp);
 		ServletContext context = getServletContext();
 		if (query == null)
@@ -215,7 +206,7 @@ public class GraphServlet extends ModelServlet {
 		if (performPermissionsCheck(context, query, resp, permissions))
 			return;
 
-		Node node = query.getNode();
+		String uri = query.getURI();
 
 		AbstractSerializer as = serializer.get(query.getContentType());
 		if (as == null || !(as instanceof JenaSerializer)) {
@@ -226,18 +217,14 @@ public class GraphServlet extends ModelServlet {
 		Model model = ModelFactory.createDefaultModel();
 		model.read(req.getInputStream(), query.getURI(), ((JenaSerializer) as).getSerialization());
 
-		Set<Triple> before;
-		if (namedGraphSet.containsGraph(node)) {
-			Graph graph = namedGraphSet.getGraph(node);
-			before = graph.find(null, null, null).toSet();
-		} else
-			before = new HashSet<Triple>();
+		Model target = dataset.getNamedModel(uri);
+		Set<Statement> before = target.listStatements().toSet();
 
-		graphUpdater.updateGraph(namedGraphSet, model.getGraph(), node);
+		modelUpdater.updateModel(model, uri);
 
-		Set<Triple> after = namedGraphSet.getGraph(node).find(null, null, null).toSet();
+		Set<Statement> after = target.listStatements().toSet();
 
-		Set<Triple> intersection = new HashSet<Triple>(before);
+		Set<Statement> intersection = new HashSet<Statement>(before);
 		intersection.retainAll(after);
 
 		before.removeAll(intersection); // All those removed
@@ -258,12 +245,12 @@ public class GraphServlet extends ModelServlet {
 								.addProperty(DC.creator,
 										query.getUser());
 
-		for (Triple triple : before)
+		for (Statement statement : before)
 			changeset.addProperty(Namespaces.cs.p("removal"),
-					changesetModel.asStatement(triple).createReifiedStatement());
-		for (Triple triple : after)
+					statement.createReifiedStatement());
+		for (Statement statement : after)
 			changeset.addProperty(Namespaces.cs.p("addition"),
-					changesetModel.asStatement(triple).createReifiedStatement());
+					statement.createReifiedStatement());
 
 
 		String filename = query.getURL().getPath() + "/" + date.getLexicalForm() + ".n3";
@@ -365,8 +352,8 @@ public class GraphServlet extends ModelServlet {
 			return false;
 	}
 
-	interface GraphUpdater {
-		void updateGraph(NamedGraphSet namedGraphSet, Graph graph, Node node);
+	interface ModelUpdater {
+		void updateModel(Model model, String uri);
 	}
 
 	@Override

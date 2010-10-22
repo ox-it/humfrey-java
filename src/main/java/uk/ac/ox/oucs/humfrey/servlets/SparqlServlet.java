@@ -73,10 +73,9 @@ public class SparqlServlet extends ModelServlet {
 		case ST_RESOURCELIST:
 		case ST_BOOLEAN:
 			QueryExecution qexec = null;
-			Model model = namedGraphSet.asJenaModel("");
 			Query sparqlQuery = (Query) arg;
 			try {
-				qexec = QueryExecutionFactory.create(sparqlQuery, model);
+				qexec = QueryExecutionFactory.create(sparqlQuery, dataset);
 				executeQuery(qexec, sparqlQuery.getQueryType(), query, req, resp);
 			} catch (QueryExecException e) {
 				acceptFormats = new FormatPreferences("txt", "html", serializer.getSerializers(AbstractSerializer.SerializationType.ST_EXCEPTION));
